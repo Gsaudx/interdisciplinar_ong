@@ -12,6 +12,7 @@ Este projeto é um sistema de e-commerce desenvolvido para Organizações Não-G
 
 - [.NET 9.0.4 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [SQL Server](https://www.microsoft.com/pt-br/evalcenter/download-sql-server-2022)
+- [SQL Server Management Studio](https://learn.microsoft.com/en-us/ssms/download-sql-server-management-studio-ssms)
 
 ### Ferramentas e Pacotes Necessários
 
@@ -28,6 +29,13 @@ dotnet add package Microsoft.EntityFrameworkCore.SqlServer
 ## 🔧 Configuração Inicial
 
 Após baixar todas as dependências:
+
+1. Abra o SQL Server Management Studio
+
+2. Conecte-se com as seguintes configurações:
+<br>
+
+![alt text](aux-img/smss-connection-config.png)
 
 1. Crie a migração inicial do banco de dados:
    ```bash
