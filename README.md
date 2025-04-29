@@ -1,6 +1,6 @@
 # Projeto E-commerce para ONGs
 
-![Logo do Projeto](./wwwroot/img/logo.png)
+<!-- ![Logo do Projeto](./wwwroot/img/logo.png) -->
 
 ## 📋 Visão Geral
 
@@ -109,5 +109,6 @@ dotnet watch run
 
 - Professor Dr. Henrique Dezani
 - Fatec Rio Preto
+
 - Guilherme Saud Favaro
 - Isaque Precioso de Andrade
