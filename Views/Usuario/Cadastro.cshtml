@@ -1,0 +1,292 @@
+@model Usuario
+
+@{
+    ViewData["Title"] = "Cadastro";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Cadastro de Usuário</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Cadastro" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Tipo" class="control-label">Tipo de Usuário</label>
+                            <select asp-for="Tipo" class="form-control" id="tipoUsuario">
+                                <option value="@TipoUsuario.Doador">Doador</option>
+                                <option value="@TipoUsuario.Voluntario">Voluntário</option>
+                                <option value="@TipoUsuario.Organizacao">Organização (ONG)</option>
+                            </select>
+                            <span asp-validation-for="Tipo" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Nome" class="control-label">Nome</label>
+                            <input asp-for="Nome" class="form-control" />
+                            <span asp-validation-for="Nome" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="EmailPrincipal" class="control-label">E-mail</label>
+                            <input asp-for="EmailPrincipal" class="form-control" type="email" autocomplete="email"/>
+                            <span asp-validation-for="EmailPrincipal" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="senha" class="control-label">Senha</label>
+                            <input id="senha" name="senha" class="form-control" type="password" autocomplete="new-password"/>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="confirmacaoSenha" class="control-label">Confirmar Senha</label>
+                            <input id="confirmacaoSenha" name="confirmacaoSenha" class="form-control" type="password" autocomplete="new-password"/>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Telefone" class="control-label">Telefone</label>
+                            <input asp-for="Telefone" class="form-control" />
+                            <span asp-validation-for="Telefone" class="text-danger"></span>
+                        </div>
+                        
+                        <h5 class="mt-4">Endereço</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Cep" class="control-label">CEP</label>
+                                    <input asp-for="Cep" class="form-control" id="cep" />
+                                    <span asp-validation-for="Cep" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Logradouro" class="control-label">Logradouro</label>
+                                    <input asp-for="Logradouro" class="form-control" id="logradouro" />
+                                    <span asp-validation-for="Logradouro" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Numero" class="control-label">Número</label>
+                                    <input asp-for="Numero" class="form-control" />
+                                    <span asp-validation-for="Numero" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Complemento" class="control-label">Complemento</label>
+                                    <input asp-for="Complemento" class="form-control" />
+                                    <span asp-validation-for="Complemento" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Bairro" class="control-label">Bairro</label>
+                                    <input asp-for="Bairro" class="form-control" id="bairro" />
+                                    <span asp-validation-for="Bairro" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Cidade" class="control-label">Cidade</label>
+                                    <input asp-for="Cidade" class="form-control" id="cidade" />
+                                    <span asp-validation-for="Cidade" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Estado" class="control-label">Estado</label>
+                                    <input asp-for="Estado" class="form-control" id="estado" />
+                                    <span asp-validation-for="Estado" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3" style="display: none;">
+                            <label asp-for="Latitude" class="control-label">Latitude</label>
+                            <input asp-for="Latitude" class="form-control" id="latitude" />
+                        </div>
+                        
+                        <div class="form-group mb-3" style="display: none;">
+                            <label asp-for="Longitude" class="control-label">Longitude</label>
+                            <input asp-for="Longitude" class="form-control" id="longitude" />
+                        </div>
+                        
+                        <!-- Campos específicos de Doador -->
+                        <div id="camposDoador" style="display: none;">
+                            <h5 class="mt-4">Campos para Doador</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Cpf" class="control-label">CPF</label>
+                                        <input id="Cpf" name="Cpf" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataNascimento" class="control-label">Data de Nascimento</label>
+                                        <input id="DataNascimento" name="DataNascimento" class="form-control" type="date" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campos específicos de Voluntário -->
+                        <div id="camposVoluntario" style="display: none;">
+                            <h5 class="mt-4">Campos para Voluntário</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Cpf" class="control-label">CPF</label>
+                                        <input id="CpfVoluntario" name="Cpf" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataNascimento" class="control-label">Data de Nascimento</label>
+                                        <input id="DataNascimentoVoluntario" name="DataNascimento" class="form-control" type="date" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Profissao" class="control-label">Profissão</label>
+                                        <input id="Profissao" name="Profissao" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Disponibilidade" class="control-label">Disponibilidade</label>
+                                        <input id="Disponibilidade" name="Disponibilidade" class="form-control" placeholder="Ex: Finais de semana, noites..." />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Campos específicos de ONG -->
+                        <div id="camposONG" style="display: none;">
+                            <h5 class="mt-4">Campos para ONG</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Cnpj" class="control-label">CNPJ</label>
+                                        <input id="Cnpj" name="Cnpj" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataFundacao" class="control-label">Data de Fundação</label>
+                                        <input id="DataFundacao" name="DataFundacao" class="form-control" type="date" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="RazaoSocial" class="control-label">Razão Social</label>
+                                <input id="RazaoSocial" name="RazaoSocial" class="form-control" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="NomeFantasia" class="control-label">Nome Fantasia</label>
+                                <input id="NomeFantasia" name="NomeFantasia" class="form-control" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="Descricao" class="control-label">Descrição</label>
+                                <textarea id="Descricao" name="Descricao" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Cadastrar</button>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary btn-lg">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
+    <script>
+        $(document).ready(function() {
+            
+            $('#tipoUsuario').on('change', function() {
+                const tipo = $(this).val();
+                console.log("Tipo de usuário alterado: " + tipo);
+                
+                $('#camposDoador, #camposVoluntario, #camposONG').hide();
+                
+                if (tipo == "Doador") {
+                    $('#camposDoador').show();
+                } else if (tipo == "Voluntario") {
+                    $('#camposVoluntario').show();
+                } else if (tipo == "Organizacao") {
+                    $('#camposONG').show();
+                }
+            });
+            
+            $('#tipoUsuario').trigger('change');
+
+            $('#cep').blur(function() {
+                const cep = $(this).val().replace(/\D/g, '');
+                console.log("CEP inserido: " + cep);
+                
+                if (cep.length === 8) {
+                    $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                        if (!data.erro) {
+                            console.log("CEP encontrado: ", data);
+                            $('#logradouro').val(data.logradouro);
+                            $('#bairro').val(data.bairro);
+                            $('#cidade').val(data.localidade);
+                            $('#estado').val(data.uf);
+                            
+                            // Geocodificação para obter as coordenadas se o número já estiver preenchido
+                            if ($('#numero').val()) {
+                                const endereco = `${data.logradouro}, ${$('#numero').val()}, ${data.localidade}, ${data.uf}, Brasil`;
+                                geocodeAddress(endereco);
+                            }
+                        } else {
+                            console.log("CEP não encontrado");
+                        }
+                    }).fail(function() {
+                        console.log("Erro ao buscar o CEP");
+                    });
+                }
+            });
+            
+            // Quando o número é alterado, atualizar a geocodificação
+            $('#numero').blur(function() {
+                if ($('#logradouro').val()) {
+                    const endereco = `${$('#logradouro').val()}, ${$(this).val()}, ${$('#cidade').val()}, ${$('#estado').val()}, Brasil`;
+                    console.log("Geocodificando endereço: " + endereco);
+                    geocodeAddress(endereco);
+                }
+            });
+            
+            function geocodeAddress(endereco) {
+                const geocoder = new google.maps.Geocoder();
+                geocoder.geocode({ 'address': endereco }, function(results, status) {
+                    if (status === google.maps.GeocoderStatus.OK) {
+                        console.log("Coordenadas obtidas: ", results[0].geometry.location.lat(), results[0].geometry.location.lng());
+                        $('#latitude').val(results[0].geometry.location.lat());
+                        $('#longitude').val(results[0].geometry.location.lng());
+                    } else {
+                        console.log("Falha na geocodificação: " + status);
+                    }
+                });
+            }
+        });
+    </script>
+}

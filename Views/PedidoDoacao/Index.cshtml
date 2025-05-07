@@ -1,0 +1,73 @@
+@model List<PedidoDoacao>
+
+@{
+    ViewData["Title"] = "Pedidos de Doação";
+}
+
+<div class="container mt-4">
+    <h2>Pedidos de Doação</h2>
+    <p>Veja abaixo os pedidos de doação de ONGs que precisam da sua ajuda.</p>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="get" class="form-inline">
+                <div class="input-group">
+                    <input type="text" name="filtro" class="form-control" placeholder="Filtrar por categoria ou descrição...">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            @if (User.IsInRole(TipoUsuario.Organizacao.ToString()))
+            {
+                <a asp-action="Criar" class="btn btn-success">
+                    <i class="fa fa-plus"></i> Novo Pedido de Doação
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var pedido in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@pedido.Categoria</h5>
+                            <span class="badge @(pedido.Status == "Aberto" ? "bg-success" : "bg-secondary")">@pedido.Status</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@pedido.Descricao</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fa fa-building"></i> @pedido.Ong.Nome
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="Detalhes" asp-route-id="@pedido.PedidoDoacaoId" class="btn btn-primary btn-sm">
+                                <i class="fa fa-info-circle"></i> Detalhes
+                            </a>
+                            @if (User.Identity.IsAuthenticated && User.IsInRole(TipoUsuario.Doador.ToString()))
+                            {
+                                <a asp-controller="Doacao" asp-action="Realizar" asp-route-pedidoId="@pedido.PedidoDoacaoId" class="btn btn-success btn-sm">
+                                    <i class="fa fa-gift"></i> Doar
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Não foram encontrados pedidos de doação.
+        </div>
+    }
+</div>

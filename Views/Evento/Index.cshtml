@@ -1,0 +1,78 @@
+@model List<Evento>
+
+@{
+    ViewData["Title"] = "Eventos";
+}
+
+<div class="container mt-4">
+    <h2>Eventos</h2>
+    <p>Veja abaixo os eventos disponíveis e participe como voluntário.</p>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="get" class="form-inline">
+                <div class="input-group">
+                    <input type="text" name="filtro" class="form-control" placeholder="Filtrar por nome ou descrição...">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit">Filtrar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6 text-end">
+            @if (User.IsInRole(TipoUsuario.Organizacao.ToString()))
+            {
+                <a asp-action="Criar" class="btn btn-success">
+                    <i class="fa fa-plus"></i> Novo Evento
+                </a>
+            }
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var evento in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">@evento.Nome</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@evento.Descricao</p>
+                            <p class="card-text">
+                                <i class="fa fa-calendar"></i> @evento.Data.ToString("dd/MM/yyyy HH:mm")
+                            </p>
+                            <p class="card-text">
+                                <i class="fa fa-map-marker"></i> @evento.Localizacao
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fa fa-building"></i> @evento.Ong.Nome
+                                </small>
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
+                                <i class="fa fa-info-circle"></i> Detalhes
+                            </a>
+                            @if (User.Identity.IsAuthenticated && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+                            {
+                                <a asp-action="Inscrever" asp-route-eventoId="@evento.EventoId" asp-route-voluntarioId="@ViewBag.UsuarioId" class="btn btn-success btn-sm">
+                                    <i class="fa fa-hand-paper-o"></i> Voluntariar-se
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Não foram encontrados eventos.
+        </div>
+    }
+</div>

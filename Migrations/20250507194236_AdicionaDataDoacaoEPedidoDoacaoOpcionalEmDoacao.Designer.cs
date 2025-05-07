@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Ong.Data;
 
@@ -11,9 +12,11 @@ using Ong.Data;
 namespace Ong.Migrations
 {
     [DbContext(typeof(DbOng))]
-    partial class DbOngModelSnapshot : ModelSnapshot
+    [Migration("20250507194236_AdicionaDataDoacaoEPedidoDoacaoOpcionalEmDoacao")]
+    partial class AdicionaDataDoacaoEPedidoDoacaoOpcionalEmDoacao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,7 +52,7 @@ namespace Ong.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("Contato", (string)null);
+                    b.ToTable("Contato");
                 });
 
             modelBuilder.Entity("Ong.Models.Doacao", b =>
@@ -88,7 +91,7 @@ namespace Ong.Migrations
 
                     b.HasIndex("PedidoDoacaoId");
 
-                    b.ToTable("Doacao", (string)null);
+                    b.ToTable("Doacao");
                 });
 
             modelBuilder.Entity("Ong.Models.Evento", b =>
@@ -121,7 +124,7 @@ namespace Ong.Migrations
 
                     b.HasIndex("OngId");
 
-                    b.ToTable("Evento", (string)null);
+                    b.ToTable("Evento");
                 });
 
             modelBuilder.Entity("Ong.Models.PedidoDoacao", b =>
@@ -151,7 +154,7 @@ namespace Ong.Migrations
 
                     b.HasIndex("OngId");
 
-                    b.ToTable("PedidoDoacao", (string)null);
+                    b.ToTable("PedidoDoacao");
                 });
 
             modelBuilder.Entity("Ong.Models.Usuario", b =>
@@ -177,9 +180,6 @@ namespace Ong.Migrations
                     b.Property<string>("Complemento")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DataCadastro")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("EmailPrincipal")
                         .IsRequired()
@@ -215,9 +215,6 @@ namespace Ong.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Tipo")
-                        .HasColumnType("int");
-
                     b.HasKey("UsuarioId");
 
                     b.ToTable("Usuario", (string)null);
@@ -244,7 +241,7 @@ namespace Ong.Migrations
 
                     b.HasIndex("EventoId");
 
-                    b.ToTable("VoluntarioEvento", (string)null);
+                    b.ToTable("VoluntarioEvento");
                 });
 
             modelBuilder.Entity("Ong.Models.Doador", b =>
@@ -255,7 +252,7 @@ namespace Ong.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataNascimento")
+                    b.Property<DateTime>("DataNascimento")
                         .HasColumnType("datetime2");
 
                     b.ToTable("Doador", (string)null);
@@ -269,7 +266,7 @@ namespace Ong.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataFundacao")
+                    b.Property<DateTime>("DataFundacao")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Descricao")
@@ -295,7 +292,7 @@ namespace Ong.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DataNascimento")
+                    b.Property<DateTime>("DataNascimento")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Disponibilidade")
