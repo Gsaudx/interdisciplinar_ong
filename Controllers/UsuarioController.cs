@@ -16,7 +16,7 @@ namespace Ong.Controllers
         private readonly IConfiguration _configuration;
 
         public UsuarioController(
-            UsuarioService usuarioService, 
+            UsuarioService usuarioService,
             SessaoService sessaoService,
             IConfiguration configuration)
         {
@@ -39,7 +39,7 @@ namespace Ong.Controllers
         {
             // Retornar API key para a view em caso de erro
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
-            
+
             if (senha != confirmacaoSenha)
             {
                 ModelState.AddModelError("ConfirmacaoSenha", "As senhas não coincidem.");
@@ -68,7 +68,7 @@ namespace Ong.Controllers
                         Longitude = usuario.Longitude,
                         Tipo = TipoUsuario.Doador,
                         Cpf = Request.Form.ContainsKey("Cpf") ? Request.Form["Cpf"].ToString() : string.Empty,
-                        DataNascimento = Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]) ? 
+                        DataNascimento = Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]) ?
                             DateTime.Parse(Request.Form["DataNascimento"]) : null
                     };
                     var novoUsuario = await _usuarioService.CriarUsuario(doador, senha);
@@ -94,7 +94,7 @@ namespace Ong.Controllers
                         Longitude = usuario.Longitude,
                         Tipo = TipoUsuario.Voluntario,
                         Cpf = Request.Form.ContainsKey("Cpf") ? Request.Form["Cpf"].ToString() : string.Empty,
-                        DataNascimento = Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]) ? 
+                        DataNascimento = Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]) ?
                             DateTime.Parse(Request.Form["DataNascimento"]) : null,
                         Profissao = Request.Form.ContainsKey("Profissao") ? Request.Form["Profissao"].ToString() : string.Empty,
                         Disponibilidade = Request.Form.ContainsKey("Disponibilidade") ? Request.Form["Disponibilidade"].ToString() : string.Empty
@@ -122,7 +122,7 @@ namespace Ong.Controllers
                         Longitude = usuario.Longitude,
                         Tipo = TipoUsuario.Organizacao,
                         Cnpj = Request.Form.ContainsKey("Cnpj") ? Request.Form["Cnpj"].ToString() : string.Empty,
-                        DataFundacao = Request.Form.ContainsKey("DataFundacao") && !string.IsNullOrEmpty(Request.Form["DataFundacao"]) ? 
+                        DataFundacao = Request.Form.ContainsKey("DataFundacao") && !string.IsNullOrEmpty(Request.Form["DataFundacao"]) ?
                             DateTime.Parse(Request.Form["DataFundacao"]) : null,
                         RazaoSocial = Request.Form.ContainsKey("RazaoSocial") ? Request.Form["RazaoSocial"].ToString() : string.Empty,
                         NomeFantasia = Request.Form.ContainsKey("NomeFantasia") ? Request.Form["NomeFantasia"].ToString() : string.Empty,
@@ -197,43 +197,195 @@ namespace Ong.Controllers
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
             var usuario = await _usuarioService.ObterUsuarioPorId(usuarioId);
-            
+
             if (usuario == null)
             {
                 return NotFound();
             }
 
             return View(usuario);
-        }
-
-        // GET: Usuario/Editar
+        }        // GET: Usuario/Editar
         [Authorize]
+
         public async Task<IActionResult> Editar()
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
             var usuario = await _usuarioService.ObterUsuarioPorId(usuarioId);
-            
+
             if (usuario == null)
             {
                 return NotFound();
             }
 
+            ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
             return View(usuario);
-        }
-
-        // POST: Usuario/Editar
-        [HttpPost]
+        }        [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> Editar(Usuario usuario)
         {
-            if (ModelState.IsValid)
+            ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
+            int usuarioId = _sessaoService.ObterUsuarioId();
+
+            string senhaAtual = Request.Form["Senha"].ToString();
+            if (string.IsNullOrEmpty(senhaAtual))
             {
-                // Implementar lógica para atualizar o usuário
-                return RedirectToAction("Perfil");
+                ModelState.AddModelError("", "A senha atual é obrigatória.");
+                var userCompleto = await _usuarioService.ObterUsuarioPorId(usuarioId);
+                return View(userCompleto);
             }
 
-            return View(usuario);
+            bool senhaCorreta = await _usuarioService.VerificarSenha(usuarioId, senhaAtual);
+            if (!senhaCorreta)
+            {
+                ModelState.AddModelError("", "Senha atual incorreta.");
+                var userCompleto = await _usuarioService.ObterUsuarioPorId(usuarioId);
+                return View(userCompleto);
+            }
+
+            if (ModelState.ContainsKey("Contatos"))
+            {
+                ModelState.Remove("Contatos");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Preservar o ID do usuário logado e outros dados que não devem ser alterados
+                    usuario.UsuarioId = _sessaoService.ObterUsuarioId();
+                    usuario.Tipo = _sessaoService.ObterTipoUsuario();
+
+                    // Tratar dados específicos com base no tipo de usuário
+                    if (usuario.Tipo == TipoUsuario.Doador)
+                    {
+                        var doador = new Doador
+                        {
+                            UsuarioId = usuario.UsuarioId,
+                            Nome = usuario.Nome,
+                            EmailPrincipal = usuario.EmailPrincipal,
+                            Telefone = usuario.Telefone,
+                            Cep = usuario.Cep,
+                            Logradouro = usuario.Logradouro,
+                            Numero = usuario.Numero,
+                            Complemento = usuario.Complemento,
+                            Bairro = usuario.Bairro,
+                            Cidade = usuario.Cidade,
+                            Estado = usuario.Estado,
+                            Latitude = usuario.Latitude,
+                            Longitude = usuario.Longitude,
+                            Tipo = TipoUsuario.Doador,
+                            Cpf = Request.Form.ContainsKey("Cpf") ? Request.Form["Cpf"].ToString() : string.Empty
+                        };
+
+                        // Análise segura de DataNascimento
+                        if (Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]))
+                        {
+                            if (DateTime.TryParse(Request.Form["DataNascimento"], out DateTime dataNasc))
+                            {
+                                doador.DataNascimento = dataNasc;
+                            }
+                        }
+
+                        await _usuarioService.AtualizarUsuario(doador);
+
+                        // Obter o usuário atualizado para exibir na view
+                        var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
+                        return RedirectToAction("Perfil");
+                    }
+                    else if (usuario.Tipo == TipoUsuario.Voluntario)
+                    {
+                        var voluntario = new Voluntario
+                        {
+                            UsuarioId = usuario.UsuarioId,
+                            Nome = usuario.Nome,
+                            EmailPrincipal = usuario.EmailPrincipal,
+                            Telefone = usuario.Telefone,
+                            Cep = usuario.Cep,
+                            Logradouro = usuario.Logradouro,
+                            Numero = usuario.Numero,
+                            Complemento = usuario.Complemento,
+                            Bairro = usuario.Bairro,
+                            Cidade = usuario.Cidade,
+                            Estado = usuario.Estado,
+                            Latitude = usuario.Latitude,
+                            Longitude = usuario.Longitude,
+                            Tipo = TipoUsuario.Voluntario,
+                            Cpf = Request.Form.ContainsKey("Cpf") ? Request.Form["Cpf"].ToString() : string.Empty,
+                            Profissao = Request.Form.ContainsKey("Profissao") ? Request.Form["Profissao"].ToString() : string.Empty,
+                            Disponibilidade = Request.Form.ContainsKey("Disponibilidade") ? Request.Form["Disponibilidade"].ToString() : string.Empty
+                        };
+
+                        // Análise segura de DataNascimento
+                        if (Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]))
+                        {
+                            if (DateTime.TryParse(Request.Form["DataNascimento"], out DateTime dataNasc))
+                            {
+                                voluntario.DataNascimento = dataNasc;
+                            }
+                        }
+
+                        await _usuarioService.AtualizarUsuario(voluntario);
+
+                        // Obter o usuário atualizado para exibir na view
+                        var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
+                        return RedirectToAction("Perfil");
+                    }
+                    else if (usuario.Tipo == TipoUsuario.Organizacao)
+                    {
+                        var ong = new Models.Ong
+                        {
+                            UsuarioId = usuario.UsuarioId,
+                            Nome = usuario.Nome,
+                            EmailPrincipal = usuario.EmailPrincipal,
+                            Telefone = usuario.Telefone,
+                            Cep = usuario.Cep,
+                            Logradouro = usuario.Logradouro,
+                            Numero = usuario.Numero,
+                            Complemento = usuario.Complemento,
+                            Bairro = usuario.Bairro,
+                            Cidade = usuario.Cidade,
+                            Estado = usuario.Estado,
+                            Latitude = usuario.Latitude,
+                            Longitude = usuario.Longitude,
+                            Tipo = TipoUsuario.Organizacao,
+                            Cnpj = Request.Form.ContainsKey("Cnpj") ? Request.Form["Cnpj"].ToString() : string.Empty,
+                            RazaoSocial = Request.Form.ContainsKey("RazaoSocial") ? Request.Form["RazaoSocial"].ToString() : string.Empty,
+                            NomeFantasia = Request.Form.ContainsKey("NomeFantasia") ? Request.Form["NomeFantasia"].ToString() : string.Empty,
+                            Descricao = Request.Form.ContainsKey("Descricao") ? Request.Form["Descricao"].ToString() : string.Empty
+                        };
+
+                        // Análise segura de DataFundacao
+                        if (Request.Form.ContainsKey("DataFundacao") && !string.IsNullOrEmpty(Request.Form["DataFundacao"]))
+                        {
+                            if (DateTime.TryParse(Request.Form["DataFundacao"], out DateTime dataFund))
+                            {
+                                ong.DataFundacao = dataFund;
+                            }
+                        }
+
+                        await _usuarioService.AtualizarUsuario(ong);
+
+                        // Obter o usuário atualizado para exibir na view
+                        var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
+                        return RedirectToAction("Perfil");
+                    }
+                    else
+                    {
+                        // Atualizar um usuário genérico se dados específicos não forem fornecidos
+                        await _usuarioService.AtualizarUsuario(usuario);
+                        return RedirectToAction("Perfil");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Erro ao atualizar usuário: {ex.Message}");
+                }
+            }
+
+            // Se chegou aqui, houve um erro - recarregar a view com o usuário completo para manter os dados específicos
+            var usuarioCompleto = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
+            return View(usuarioCompleto);
         }
 
         // GET: Usuario/AcessoNegado

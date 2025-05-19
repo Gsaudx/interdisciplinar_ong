@@ -37,6 +37,157 @@ namespace Ong.Services
             await _context.SaveChangesAsync();
 
             return usuario;
+        }        public async Task<Usuario> AtualizarUsuario(Usuario usuario)
+        {
+            // Verificar se o email já está em uso por outro usuário
+            var usuarioComMesmoEmail = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.EmailPrincipal == usuario.EmailPrincipal && u.UsuarioId != usuario.UsuarioId);
+                
+            if (usuarioComMesmoEmail != null)
+            {
+                throw new Exception("Este email já está sendo utilizado por outro usuário.");
+            }
+
+            // Obter o usuário atual do banco de dados
+            var usuarioAtual = await _context.Usuarios.FindAsync(usuario.UsuarioId);
+            
+            if (usuarioAtual == null)
+            {
+                throw new Exception("Usuário não encontrado.");
+            }
+
+            // Atualizar os campos comuns a todos os usuários
+            usuarioAtual.Nome = usuario.Nome;
+            usuarioAtual.EmailPrincipal = usuario.EmailPrincipal;
+            usuarioAtual.Telefone = usuario.Telefone;
+            usuarioAtual.Logradouro = usuario.Logradouro;
+            usuarioAtual.Numero = usuario.Numero;
+            usuarioAtual.Complemento = usuario.Complemento;
+            usuarioAtual.Bairro = usuario.Bairro;
+            usuarioAtual.Cidade = usuario.Cidade;
+            usuarioAtual.Estado = usuario.Estado;
+            usuarioAtual.Cep = usuario.Cep;
+            usuarioAtual.Latitude = usuario.Latitude;
+            usuarioAtual.Longitude = usuario.Longitude;
+            
+            // Preservar a coleção de contatos existente
+            // Isso garante que os contatos não sejam perdidos durante a atualização
+            if (usuarioAtual.Contatos != null && usuario.Contatos == null)
+            {
+                usuario.Contatos = usuarioAtual.Contatos;
+            }
+
+            try
+            {
+                // Atualizar campos específicos com base no tipo de usuário
+                if (usuarioAtual.Tipo == TipoUsuario.Doador)
+                {
+                    var doadorAtual = await _context.Doadores.FindAsync(usuario.UsuarioId);
+                    if (doadorAtual != null)
+                    {
+                        if (usuario is Doador doador)
+                        {
+                            doadorAtual.Cpf = doador.Cpf;
+                            doadorAtual.DataNascimento = doador.DataNascimento;
+                        }
+                        else
+                        {
+                            // Caso receba um objeto Usuario genérico
+                            var cpf = usuario.GetType().GetProperty("Cpf")?.GetValue(usuario)?.ToString();
+                            var dataNascimentoStr = usuario.GetType().GetProperty("DataNascimento")?.GetValue(usuario)?.ToString();
+
+                            if (!string.IsNullOrEmpty(cpf))
+                                doadorAtual.Cpf = cpf;
+                                
+                            if (!string.IsNullOrEmpty(dataNascimentoStr) && DateTime.TryParse(dataNascimentoStr, out DateTime dataNascimento))
+                                doadorAtual.DataNascimento = dataNascimento;
+                        }
+                    }
+                }
+                else if (usuarioAtual.Tipo == TipoUsuario.Voluntario)
+                {
+                    var voluntarioAtual = await _context.Voluntarios.FindAsync(usuario.UsuarioId);
+                    if (voluntarioAtual != null)
+                    {
+                        if (usuario is Voluntario voluntario)
+                        {
+                            voluntarioAtual.Cpf = voluntario.Cpf;
+                            voluntarioAtual.DataNascimento = voluntario.DataNascimento;
+                            voluntarioAtual.Profissao = voluntario.Profissao;
+                            voluntarioAtual.Disponibilidade = voluntario.Disponibilidade;
+                        }
+                        else
+                        {
+                            // Caso receba um objeto Usuario genérico
+                            var cpf = usuario.GetType().GetProperty("Cpf")?.GetValue(usuario)?.ToString();
+                            var dataNascimentoStr = usuario.GetType().GetProperty("DataNascimento")?.GetValue(usuario)?.ToString();
+                            var profissao = usuario.GetType().GetProperty("Profissao")?.GetValue(usuario)?.ToString();
+                            var disponibilidade = usuario.GetType().GetProperty("Disponibilidade")?.GetValue(usuario)?.ToString();
+
+                            if (!string.IsNullOrEmpty(cpf))
+                                voluntarioAtual.Cpf = cpf;
+                                
+                            if (!string.IsNullOrEmpty(dataNascimentoStr) && DateTime.TryParse(dataNascimentoStr, out DateTime dataNascimento))
+                                voluntarioAtual.DataNascimento = dataNascimento;
+                                
+                            if (!string.IsNullOrEmpty(profissao))
+                                voluntarioAtual.Profissao = profissao;
+                                
+                            if (!string.IsNullOrEmpty(disponibilidade))
+                                voluntarioAtual.Disponibilidade = disponibilidade;
+                        }
+                    }
+                }
+                else if (usuarioAtual.Tipo == TipoUsuario.Organizacao)
+                {
+                    var ongAtual = await _context.Ongs.FindAsync(usuario.UsuarioId);
+                    if (ongAtual != null)
+                    {
+                        if (usuario is Models.Ong ong)
+                        {
+                            ongAtual.Cnpj = ong.Cnpj;
+                            ongAtual.RazaoSocial = ong.RazaoSocial;
+                            ongAtual.NomeFantasia = ong.NomeFantasia;
+                            ongAtual.DataFundacao = ong.DataFundacao;
+                            ongAtual.Descricao = ong.Descricao;
+                        }
+                        else
+                        {
+                            // Caso receba um objeto Usuario genérico
+                            var cnpj = usuario.GetType().GetProperty("Cnpj")?.GetValue(usuario)?.ToString();
+                            var razaoSocial = usuario.GetType().GetProperty("RazaoSocial")?.GetValue(usuario)?.ToString();
+                            var nomeFantasia = usuario.GetType().GetProperty("NomeFantasia")?.GetValue(usuario)?.ToString();
+                            var dataFundacaoStr = usuario.GetType().GetProperty("DataFundacao")?.GetValue(usuario)?.ToString();
+                            var descricao = usuario.GetType().GetProperty("Descricao")?.GetValue(usuario)?.ToString();
+
+                            if (!string.IsNullOrEmpty(cnpj))
+                                ongAtual.Cnpj = cnpj;
+                                
+                            if (!string.IsNullOrEmpty(razaoSocial))
+                                ongAtual.RazaoSocial = razaoSocial;
+                                
+                            if (!string.IsNullOrEmpty(nomeFantasia))
+                                ongAtual.NomeFantasia = nomeFantasia;
+                                
+                            if (!string.IsNullOrEmpty(dataFundacaoStr) && DateTime.TryParse(dataFundacaoStr, out DateTime dataFundacao))
+                                ongAtual.DataFundacao = dataFundacao;
+                                
+                            if (!string.IsNullOrEmpty(descricao))
+                                ongAtual.Descricao = descricao;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao atualizar campos específicos: {ex.Message}");
+                // Continuar mesmo com erro nos campos específicos
+            }
+
+            await _context.SaveChangesAsync();
+            
+            // Retorna o usuário atualizado com o tipo específico
+            return await ObterUsuarioPorId(usuarioAtual.UsuarioId);
         }
 
         public async Task<Usuario> AutenticarUsuario(string email, string senha)
@@ -52,11 +203,32 @@ namespace Ong.Services
             bool senhaCorreta = PasswordHelper.VerifyPassword(senha, usuario.Senha);
 
             return senhaCorreta ? usuario : null;
-        }
-
+        }        
+        
         public async Task<Usuario> ObterUsuarioPorId(int id)
         {
-            return await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios.FindAsync(id);
+            
+            if (usuario == null)
+            {
+                return null;
+            }
+            
+            // Retornar o tipo específico de usuário baseado no enum Tipo
+            if (usuario.Tipo == TipoUsuario.Doador)
+            {
+                return await _context.Doadores.FindAsync(id);
+            }
+            else if (usuario.Tipo == TipoUsuario.Voluntario)
+            {
+                return await _context.Voluntarios.FindAsync(id);
+            }
+            else if (usuario.Tipo == TipoUsuario.Organizacao)
+            {
+                return await _context.Ongs.FindAsync(id);
+            }
+            
+            return usuario;
         }
 
         public async Task<List<Usuario>> ObterUsuariosPorTipo(TipoUsuario tipo)
@@ -99,6 +271,18 @@ namespace Ong.Services
         private double Deg2Rad(double deg)
         {
             return deg * (Math.PI / 180);
+        }
+
+        public async Task<bool> VerificarSenha(int usuarioId, string senha)
+        {
+            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+            
+            if (usuario == null)
+            {
+                return false;
+            }
+            
+            return PasswordHelper.VerifyPassword(senha, usuario.Senha);
         }
     }
 }

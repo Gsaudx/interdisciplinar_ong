@@ -20,5 +20,5 @@ public class Usuario
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
 
-    public ICollection<Contato> Contatos { get; set; }
+    public ICollection<Contato>? Contatos { get; set; }
 }
