@@ -1,4 +1,4 @@
-# Projeto E-commerce para ONGs
+# Projeto VolunMap para ONGs, Doadores e Voluntários
 
 <!-- ![Logo do Projeto](./wwwroot/img/logo.png) -->
 
