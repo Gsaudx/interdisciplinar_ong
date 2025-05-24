@@ -12,24 +12,25 @@ namespace Ong.Controllers
         private readonly DoacaoService _doacaoService;
         private readonly UsuarioService _usuarioService;
         private readonly PedidoDoacaoService _pedidoDoacaoService;
+        private readonly SessaoService _sessaoService;
 
         public DoacaoController(
             DoacaoService doacaoService,
             UsuarioService usuarioService,
-            PedidoDoacaoService pedidoDoacaoService)
+            PedidoDoacaoService pedidoDoacaoService,
+            SessaoService sessaoService)
         {
             _doacaoService = doacaoService;
             _usuarioService = usuarioService;
             _pedidoDoacaoService = pedidoDoacaoService;
-        }
-
-        // GET: Doacao/Realizar
+            _sessaoService = sessaoService;
+        }        // GET: Doacao/Realizar
         public async Task<IActionResult> Realizar(int? pedidoId)
         {
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-            var tipoUsuario = (TipoUsuario)HttpContext.Session.GetInt32("TipoUsuario");
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (usuarioId == null || tipoUsuario != TipoUsuario.Doador)
+            if (usuarioId == 0 || tipoUsuario != TipoUsuario.Doador)
             {
                 TempData["ErrorMessage"] = "Você precisa estar logado como Doador para realizar uma doação.";
                 return RedirectToAction("Login", "Usuario");
@@ -44,17 +45,15 @@ namespace Ong.Controllers
             }
 
             return View();
-        }
-
-        // POST: Doacao/Realizar
+        }        // POST: Doacao/Realizar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Realizar(int doadorId, int ongId, int? pedidoDoacaoId, string categoria, string descricao)
         {
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-            var tipoUsuario = (TipoUsuario)HttpContext.Session.GetInt32("TipoUsuario");
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (usuarioId == null || tipoUsuario != TipoUsuario.Doador || usuarioId != doadorId)
+            if (usuarioId == 0 || tipoUsuario != TipoUsuario.Doador || usuarioId != doadorId)
             {
                 TempData["ErrorMessage"] = "Você precisa estar logado como Doador para realizar uma doação.";
                 return RedirectToAction("Login", "Usuario");
@@ -84,15 +83,13 @@ namespace Ong.Controllers
             }
             
             return View();
-        }
-
-        // GET: Doacao/MinhasDoacoes
+        }        // GET: Doacao/MinhasDoacoes
         public async Task<IActionResult> MinhasDoacoes(int? doadorId = null)
         {
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-            var tipoUsuario = (TipoUsuario)HttpContext.Session.GetInt32("TipoUsuario");
-
-            if (usuarioId == null || tipoUsuario != TipoUsuario.Doador)
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+            
+            if (usuarioId == 0 || tipoUsuario != TipoUsuario.Doador)
             {
                 TempData["ErrorMessage"] = "Você precisa estar logado como Doador para ver suas doações.";
                 return RedirectToAction("Login", "Usuario");
@@ -113,15 +110,13 @@ namespace Ong.Controllers
             ViewBag.DoadorId = doadorId.Value;
             var doacoes = await _doacaoService.ObterDoacoesPorDoador(doadorId.Value);
             return View(doacoes);
-        }
-
-        // GET: Doacao/DoacoesRecebidas
+        }        // GET: Doacao/DoacoesRecebidas
         public async Task<IActionResult> DoacoesRecebidas(int? ongId = null)
         {
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-            var tipoUsuario = (TipoUsuario?)HttpContext.Session.GetInt32("TipoUsuario");
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (usuarioId == null || tipoUsuario != TipoUsuario.Organizacao)
+            if (usuarioId == 0 || tipoUsuario != TipoUsuario.Organizacao)
             {
                 TempData["ErrorMessage"] = "Você precisa estar logado como ONG para ver doações recebidas.";
                 return RedirectToAction("Login", "Usuario");
@@ -142,15 +137,13 @@ namespace Ong.Controllers
             ViewBag.OngId = ongId.Value;
             var doacoes = await _doacaoService.ObterDoacoesPorOng(ongId.Value);
             return View(doacoes);
-        }
-
-        // GET: Doacao/DoacoesPorPedido
+        }        // GET: Doacao/DoacoesPorPedido
         public async Task<IActionResult> DoacoesPorPedido(int pedidoId)
         {
-            var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
-            var tipoUsuario = (TipoUsuario?)HttpContext.Session.GetInt32("TipoUsuario");
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (usuarioId == null)
+            if (usuarioId == 0)
             {
                 TempData["ErrorMessage"] = "Você precisa estar logado para ver doações por pedido.";
                 return RedirectToAction("Login", "Usuario");

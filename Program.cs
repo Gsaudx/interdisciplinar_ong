@@ -2,6 +2,7 @@ using Ong.Data;
 using Microsoft.EntityFrameworkCore;
 using Ong.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Ong.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+app.UseUserSession(); // Adiciona middleware para sincronizar sessão com autenticação
 
 app.MapControllerRoute(
     name: "default",
