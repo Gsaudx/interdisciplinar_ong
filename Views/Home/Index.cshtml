@@ -218,6 +218,29 @@
     </section>
 }
 
+<!-- Área de Acesso Rápido para Doadores -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Doador.ToString()))
+{
+    <section class="doador-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área do Doador</h2>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hand-holding-heart fa-4x text-primary mb-3"></i>
+                            <h3>Minhas Doações</h3>
+                            <p>Acompanhe suas doações e faça novas contribuições para as ONGs.</p>
+                            <a asp-controller="Doacao" asp-action="MinhasDoacoes" class="btn btn-primary">Minhas Doações</a>
+                            <a asp-controller="Doacao" asp-action="Realizar" class="btn btn-outline-primary">Nova Doação</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
 @section Scripts {
     <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
     <script>

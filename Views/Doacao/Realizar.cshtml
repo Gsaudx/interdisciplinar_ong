@@ -1,0 +1,142 @@
+@model Doacao
+@using Ong.Models
+@{
+    ViewData["Title"] = "Realizar Doação";
+    Layout = "_Layout";
+    var ongs = ViewBag.ONGs as List<Usuario>;
+    var pedido = ViewBag.PedidoDoacao as PedidoDoacao;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Realizar Doação</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Realizar" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" id="doadorId" name="doadorId" value="@ViewBag.DoadorId" />
+                        
+                        @if (pedido != null)
+                        {
+                            <input type="hidden" id="ongId" name="ongId" value="@pedido.OngId" />
+                            <input type="hidden" id="pedidoDoacaoId" name="pedidoDoacaoId" value="@pedido.PedidoDoacaoId" />
+                            <input type="hidden" id="categoria" name="categoria" value="@pedido.Categoria" />
+                            
+                            <div class="alert alert-info mb-4">
+                                <h5>Você está doando para o pedido:</h5>
+                                <p><strong>ONG:</strong> @pedido.Ong?.Nome</p>
+                                <p><strong>Categoria:</strong> @pedido.Categoria</p>
+                                <p><strong>Descrição:</strong> @pedido.Descricao</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group mb-3">
+                                <label for="ongId" class="control-label">Selecione a ONG</label>
+                                <select id="ongId" name="ongId" class="form-select" required>
+                                    <option value="">Selecione uma ONG</option>
+                                    @if (ongs != null)
+                                    {
+                                        foreach (var ong in ongs)
+                                        {
+                                            <option value="@ong.UsuarioId">@ong.Nome</option>
+                                        }
+                                    }
+                                </select>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="ongId" data-valmsg-replace="true"></span>
+                            </div>
+                            
+                            <div class="form-group mb-3">
+                                <label for="categoria" class="control-label">Categoria</label>
+                                <select id="categoria" name="categoria" class="form-select" required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option value="Alimentos">Alimentos</option>
+                                    <option value="Roupas">Roupas</option>
+                                    <option value="Móveis">Móveis</option>
+                                    <option value="Medicamentos">Medicamentos</option>
+                                    <option value="Material Escolar">Material Escolar</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="categoria" data-valmsg-replace="true"></span>
+                            </div>
+                        }
+                        
+                        <div class="form-group mb-3">
+                            <label for="descricao" class="control-label">Descrição da Doação</label>
+                            <textarea id="descricao" name="descricao" class="form-control" rows="5" placeholder="Descreva detalhadamente o que está doando..." required></textarea>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="descricao" data-valmsg-replace="true"></span>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">Realizar Doação</button>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Voltar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Adicionar validação do lado do cliente antes de enviar o formulário
+        $('form').submit(function(e) {
+            @if (pedido == null)
+            {
+                <text>
+                var ongId = $('#ongId').val();
+                var categoria = $('#categoria').val();
+                
+                if (!ongId) {
+                    e.preventDefault();
+                    showErrorNotification('Por favor, selecione uma ONG para receber sua doação.');
+                    return false;
+                }
+                
+                if (!categoria) {
+                    e.preventDefault();
+                    showErrorNotification('Por favor, selecione uma categoria para sua doação.');
+                    return false;
+                }
+                </text>
+            }
+            
+            var descricao = $('#descricao').val();
+            
+            if (!descricao || descricao.trim().length < 10) {
+                e.preventDefault();
+                showErrorNotification('Por favor, forneça uma descrição detalhada da sua doação (mínimo 10 caracteres).');
+                return false;
+            }
+            
+            // Se tudo estiver correto, mostra uma mensagem de "Enviando..." e permite o envio
+            Swal.fire({
+                title: 'Enviando doação...',
+                html: 'Por favor, aguarde enquanto processamos sua doação.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            return true;
+        });
+    </script>
+}

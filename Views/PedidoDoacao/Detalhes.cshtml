@@ -37,7 +37,16 @@
                 <div class="card-footer">
                     <a asp-action="MeusPedidos" asp-route-ongId="@Model.OngId" class="btn btn-secondary">
                         <i class="fa fa-arrow-left"></i> Voltar
-                    </a>                    @if (Model.Status == "Aberto")
+                    </a>
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Doador.ToString()) && Model.Status == "Aberto")
+                    {
+                        <a asp-controller="Doacao" asp-action="Realizar" asp-route-pedidoId="@Model.PedidoDoacaoId" class="btn btn-primary ms-2">
+                            <i class="fa fa-heart"></i> Doar para este Pedido
+                        </a>
+                    }
+                    
+                    @if (Model.Status == "Aberto")
                     {
                         <button type="button" class="btn btn-danger float-end" 
                                 onclick="confirmarFechamentoPedido('@Model.PedidoDoacaoId')">
@@ -56,15 +65,14 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
+            <div class="card">                <div class="card-header">
                     <h4>Doações Recebidas</h4>
                 </div>
                 <div class="card-body">
                     @if (doacoes != null && doacoes.Any())
                     {
                         <ul class="list-group">
-                            @foreach (var doacao in doacoes)
+                            @foreach (var doacao in doacoes.Take(3))
                             {
                                 <li class="list-group-item">                                    
                                     <div class="d-flex justify-content-between align-items-center">
@@ -77,6 +85,15 @@
                                 </li>
                             }
                         </ul>
+                        
+                        @if (doacoes.Count() > 3)
+                        {
+                            <div class="text-center mt-3">
+                                <a asp-controller="Doacao" asp-action="DoacoesPorPedido" asp-route-pedidoId="@Model.PedidoDoacaoId" class="btn btn-outline-primary btn-sm">
+                                    Ver todas as @doacoes.Count() doações
+                                </a>
+                            </div>
+                        }
                     }
                     else
                     {
