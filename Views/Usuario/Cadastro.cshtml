@@ -1,4 +1,5 @@
 @model Usuario
+@using Ong.Models
 
 @{
     ViewData["Title"] = "Cadastro";
@@ -56,10 +57,16 @@
                         <h5 class="mt-4">Endereço</h5>
                         
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6">                                
                                 <div class="form-group mb-3">
                                     <label asp-for="Cep" class="control-label">CEP</label>
-                                    <input asp-for="Cep" class="form-control" id="cep" />
+                                    <div class="input-group">
+                                        <input asp-for="Cep" class="form-control" id="cep" />
+                                        <span class="input-group-text d-none" id="cepLoading">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </span>
+                                    </div>
+                                    <small class="form-text text-muted">Digite o CEP para buscar o endereço automaticamente</small>
                                     <span asp-validation-for="Cep" class="text-danger"></span>
                                 </div>
                             </div>
@@ -219,20 +226,50 @@
 
 @section Scripts {
     <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
+    <script src="~/lib/imask/imask.min.js"></script>
     <script>
         $(document).ready(function() {
             
+            // Máscaras para os campos
+            const telefoneMask = IMask(document.getElementById('Telefone'), {
+                mask: [
+                    {
+                        mask: '(00) 0000-0000', // Telefone fixo
+                        startsWith: ''
+                    },
+                    {
+                        mask: '(00) 00000-0000', // Celular
+                        startsWith: ''
+                    }
+                ]
+            });
+            
+            const cepMask = IMask(document.getElementById('cep'), {
+                mask: '00000-000'
+            });
+            
+            const cpfMask = IMask(document.getElementById('Cpf'), {
+                mask: '000.000.000-00'
+            });
+            
+            const cpfVoluntarioMask = IMask(document.getElementById('CpfVoluntario'), {
+                mask: '000.000.000-00'
+            });
+            
+            const cnpjMask = IMask(document.getElementById('Cnpj'), {
+                mask: '00.000.000/0000-00'
+            });
+            
             $('#tipoUsuario').on('change', function() {
                 const tipo = $(this).val();
-                console.log("Tipo de usuário alterado: " + tipo);
                 
                 $('#camposDoador, #camposVoluntario, #camposONG').hide();
                 
-                if (tipo == "Doador") {
+                if (tipo == "@TipoUsuario.Doador") {
                     $('#camposDoador').show();
-                } else if (tipo == "Voluntario") {
+                } else if (tipo == "@TipoUsuario.Voluntario") {
                     $('#camposVoluntario').show();
-                } else if (tipo == "Organizacao") {
+                } else if (tipo == "@TipoUsuario.Organizacao") {
                     $('#camposONG').show();
                 }
             });
@@ -240,37 +277,41 @@
             $('#tipoUsuario').trigger('change');
 
             $('#cep').blur(function() {
-                const cep = $(this).val().replace(/\D/g, '');
-                console.log("CEP inserido: " + cep);
+                const cep = cepMask.unmaskedValue;
                 
                 if (cep.length === 8) {
+                    $('#cepLoading').removeClass('d-none');
+                    
                     $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
+                        $('#cepLoading').addClass('d-none');
+                        
                         if (!data.erro) {
-                            console.log("CEP encontrado: ", data);
                             $('#logradouro').val(data.logradouro);
                             $('#bairro').val(data.bairro);
                             $('#cidade').val(data.localidade);
                             $('#estado').val(data.uf);
                             
-                            // Geocodificação para obter as coordenadas se o número já estiver preenchido
-                            if ($('#numero').val()) {
-                                const endereco = `${data.logradouro}, ${$('#numero').val()}, ${data.localidade}, ${data.uf}, Brasil`;
+                            $('#Numero').focus();
+                            
+                            showSuccessToast('Endereço encontrado! Complete o número e complemento se necessário.');
+                            
+                            if ($('#Numero').val()) {
+                                const endereco = `${data.logradouro}, ${$('#Numero').val()}, ${data.localidade}, ${data.uf}, Brasil`;
                                 geocodeAddress(endereco);
                             }
                         } else {
-                            console.log("CEP não encontrado");
+                            showErrorToast('CEP não encontrado. Por favor, verifique o CEP informado ou preencha o endereço manualmente.');
                         }
                     }).fail(function() {
-                        console.log("Erro ao buscar o CEP");
+                        $('#cepLoading').addClass('d-none');
+                        showErrorToast('Erro ao buscar o CEP. Por favor, verifique sua conexão ou preencha o endereço manualmente.');
                     });
                 }
             });
             
-            // Quando o número é alterado, atualizar a geocodificação
-            $('#numero').blur(function() {
+            $('#Numero').blur(function() {
                 if ($('#logradouro').val()) {
                     const endereco = `${$('#logradouro').val()}, ${$(this).val()}, ${$('#cidade').val()}, ${$('#estado').val()}, Brasil`;
-                    console.log("Geocodificando endereço: " + endereco);
                     geocodeAddress(endereco);
                 }
             });
@@ -279,14 +320,44 @@
                 const geocoder = new google.maps.Geocoder();
                 geocoder.geocode({ 'address': endereco }, function(results, status) {
                     if (status === google.maps.GeocoderStatus.OK) {
-                        console.log("Coordenadas obtidas: ", results[0].geometry.location.lat(), results[0].geometry.location.lng());
                         $('#latitude').val(results[0].geometry.location.lat());
                         $('#longitude').val(results[0].geometry.location.lng());
                     } else {
-                        console.log("Falha na geocodificação: " + status);
                     }
                 });
             }
+            
+            $('form').submit(function(e) {
+                const tipo = $('#tipoUsuario').val();
+                
+                if (tipo == "@TipoUsuario.Doador" || tipo == "@TipoUsuario.Voluntario") {
+                    const cpfInput = tipo == "@TipoUsuario.Doador" ? 'Cpf' : 'CpfVoluntario';
+                    const cpfValue = tipo == "@TipoUsuario.Doador" ? cpfMask.unmaskedValue : cpfVoluntarioMask.unmaskedValue;
+                    
+                    if (cpfValue.length !== 11) {
+                        e.preventDefault();
+                        showErrorNotification('CPF inválido. Por favor, digite um CPF válido com 11 dígitos.');
+                        $('#' + cpfInput).focus();
+                        return false;
+                    }
+                } else if (tipo == "@TipoUsuario.Organizacao") {
+                    if (cnpjMask.unmaskedValue.length !== 14) {
+                        e.preventDefault();
+                        showErrorNotification('CNPJ inválido. Por favor, digite um CNPJ válido com 14 dígitos.');
+                        $('#Cnpj').focus();
+                        return false;
+                    }
+                }
+                
+                if (cepMask.unmaskedValue.length !== 8) {
+                    e.preventDefault();
+                    showErrorNotification('CEP inválido. Por favor, digite um CEP válido com 8 dígitos.');
+                    $('#cep').focus();
+                    return false;
+                }
+                
+                return true;
+            });
         });
     </script>
 }

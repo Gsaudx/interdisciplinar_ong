@@ -21,7 +21,9 @@ namespace Ong.Controllers
             _doacaoService = doacaoService;
             _usuarioService = usuarioService;
             _pedidoDoacaoService = pedidoDoacaoService;
-        }        // GET: Doacao/Realizar
+        }
+
+        // GET: Doacao/Realizar
         public async Task<IActionResult> Realizar(int? pedidoId)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
@@ -35,14 +37,16 @@ namespace Ong.Controllers
 
             ViewBag.DoadorId = usuarioId;
             ViewBag.ONGs = await _usuarioService.ObterUsuariosPorTipo(TipoUsuario.Organizacao);
-            
+
             if (pedidoId.HasValue)
             {
                 ViewBag.PedidoDoacao = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(pedidoId.Value);
             }
-            
+
             return View();
-        }        // POST: Doacao/Realizar
+        }
+
+        // POST: Doacao/Realizar
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Realizar(int doadorId, int ongId, int? pedidoDoacaoId, string categoria, string descricao)
@@ -80,7 +84,9 @@ namespace Ong.Controllers
             }
             
             return View();
-        }        // GET: Doacao/MinhasDoacoes
+        }
+
+        // GET: Doacao/MinhasDoacoes
         public async Task<IActionResult> MinhasDoacoes(int? doadorId = null)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
@@ -107,7 +113,9 @@ namespace Ong.Controllers
             ViewBag.DoadorId = doadorId.Value;
             var doacoes = await _doacaoService.ObterDoacoesPorDoador(doadorId.Value);
             return View(doacoes);
-        }        // GET: Doacao/DoacoesRecebidas
+        }
+
+        // GET: Doacao/DoacoesRecebidas
         public async Task<IActionResult> DoacoesRecebidas(int? ongId = null)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
@@ -134,7 +142,9 @@ namespace Ong.Controllers
             ViewBag.OngId = ongId.Value;
             var doacoes = await _doacaoService.ObterDoacoesPorOng(ongId.Value);
             return View(doacoes);
-        }        // GET: Doacao/DoacoesPorPedido
+        }
+
+        // GET: Doacao/DoacoesPorPedido
         public async Task<IActionResult> DoacoesPorPedido(int pedidoId)
         {
             var usuarioId = HttpContext.Session.GetInt32("UsuarioId");
