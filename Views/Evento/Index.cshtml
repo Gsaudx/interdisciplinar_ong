@@ -18,9 +18,8 @@
                     </div>
                 </div>
             </form>
-        </div>
-        <div class="col-md-6 text-end">
-            @if (User.IsInRole(TipoUsuario.Organizacao.ToString()))
+        </div>        <div class="col-md-6 text-end">
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()))
             {
                 <a asp-action="Criar" class="btn btn-success">
                     <i class="fa fa-plus"></i> Novo Evento
@@ -53,11 +52,10 @@
                                 </small>
                             </p>
                         </div>
-                        <div class="card-footer">
-                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
+                        <div class="card-footer">                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
                                 <i class="fa fa-info-circle"></i> Detalhes
                             </a>
-                            @if (User.Identity.IsAuthenticated && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()))
                             {
                                 <a asp-action="Inscrever" asp-route-eventoId="@evento.EventoId" asp-route-voluntarioId="@ViewBag.UsuarioId" class="btn btn-success btn-sm">
                                     <i class="fa fa-hand-paper-o"></i> Voluntariar-se

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Ong.Models;
 using Ong.Services;
 
@@ -11,11 +12,16 @@ namespace Ong.Controllers
     {
         private readonly EventoService _eventoService;
         private readonly UsuarioService _usuarioService;
+        private readonly SessaoService _sessaoService;
 
-        public EventoController(EventoService eventoService, UsuarioService usuarioService)
+        public EventoController(
+            EventoService eventoService, 
+            UsuarioService usuarioService,
+            SessaoService sessaoService)
         {
             _eventoService = eventoService;
             _usuarioService = usuarioService;
+            _sessaoService = sessaoService;
         }
 
         // GET: Evento
@@ -26,22 +32,43 @@ namespace Ong.Controllers
         }
 
         // GET: Evento/Criar
+        [Authorize]
         public IActionResult Criar()
         {
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (tipoUsuario != TipoUsuario.Organizacao)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
+            ViewBag.OngId = usuarioId;
             return View();
         }
 
         // POST: Evento/Criar
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Criar(int ongId, string nome, string descricao, DateTime data, string localizacao)
         {
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (tipoUsuario != TipoUsuario.Organizacao || usuarioId != ongId)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
+            ViewBag.OngId = ongId;
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     await _eventoService.CriarEvento(ongId, nome, descricao, data, localizacao);
-                    return RedirectToAction("MeusEventos", new { id = ongId });
+                    return RedirectToAction("MeusEventos");
                 }
                 catch (Exception ex)
                 {
@@ -53,18 +80,26 @@ namespace Ong.Controllers
         }
 
         // GET: Evento/MeusEventos
-        public async Task<IActionResult> MeusEventos(int ongId)
+        [Authorize]
+        public async Task<IActionResult> MeusEventos()
         {
-            var eventos = await _eventoService.ObterEventosPorOng(ongId);
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (tipoUsuario != TipoUsuario.Organizacao)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
+            ViewBag.OngId = usuarioId;
+            var eventos = await _eventoService.ObterEventosPorOng(usuarioId);
             return View(eventos);
         }
 
         // GET: Evento/Detalhes
         public async Task<IActionResult> Detalhes(int id)
         {
-            // Obter detalhes do evento
-            var eventos = await _eventoService.ObterEventosFuturos();
-            var evento = eventos.FirstOrDefault(e => e.EventoId == id);
+            var evento = await _eventoService.ObterEventoPorId(id);
             
             if (evento == null)
             {
@@ -78,8 +113,17 @@ namespace Ong.Controllers
         }
 
         // GET: Evento/Inscrever
+        [Authorize]
         public async Task<IActionResult> Inscrever(int eventoId, int voluntarioId)
         {
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (tipoUsuario != TipoUsuario.Voluntario || usuarioId != voluntarioId)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
             try
             {
                 await _eventoService.InscreverVoluntarioEmEvento(voluntarioId, eventoId);
@@ -92,15 +136,42 @@ namespace Ong.Controllers
         }
 
         // GET: Evento/MeusEventosVoluntario
-        public async Task<IActionResult> MeusEventosVoluntario(int voluntarioId)
+        [Authorize]
+        public async Task<IActionResult> MeusEventosVoluntario()
         {
-            var eventos = await _eventoService.ObterEventosPorVoluntario(voluntarioId);
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (tipoUsuario != TipoUsuario.Voluntario)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
+            var eventos = await _eventoService.ObterEventosPorVoluntario(usuarioId);
             return View(eventos);
         }
 
         // GET: Evento/AtualizarStatusInscricao
+        [Authorize]
         public async Task<IActionResult> AtualizarStatusInscricao(int eventoId, int voluntarioId, string novoStatus)
         {
+            var evento = await _eventoService.ObterEventoPorId(eventoId);
+            
+            if (evento == null)
+            {
+                return NotFound();
+            }
+
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            // Verificar se o usuário tem permissão para atualizar o status da inscrição
+            if ((tipoUsuario != TipoUsuario.Organizacao || evento.OngId != usuarioId) && 
+                (tipoUsuario != TipoUsuario.Voluntario || usuarioId != voluntarioId))
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
             try
             {
                 await _eventoService.AtualizarStatusInscricao(voluntarioId, eventoId, novoStatus);
@@ -113,14 +184,23 @@ namespace Ong.Controllers
         }
 
         // GET: Evento/Editar
+        [Authorize]
         public async Task<IActionResult> Editar(int id)
         {
-            var eventos = await _eventoService.ObterEventosFuturos();
-            var evento = eventos.FirstOrDefault(e => e.EventoId == id);
+            var evento = await _eventoService.ObterEventoPorId(id);
             
             if (evento == null)
             {
                 return NotFound();
+            }
+            
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            // Verificar se o usuário tem permissão para editar o evento
+            if (tipoUsuario != TipoUsuario.Organizacao || evento.OngId != usuarioId)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
             }
             
             return View(evento);
@@ -129,8 +209,25 @@ namespace Ong.Controllers
         // POST: Evento/Editar
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Editar(int id, string nome, string descricao, DateTime data, string localizacao)
         {
+            var evento = await _eventoService.ObterEventoPorId(id);
+            
+            if (evento == null)
+            {
+                return NotFound();
+            }
+            
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            // Verificar se o usuário tem permissão para editar o evento
+            if (tipoUsuario != TipoUsuario.Organizacao || evento.OngId != usuarioId)
+            {
+                return RedirectToAction("AcessoNegado", "Usuario");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -144,7 +241,7 @@ namespace Ong.Controllers
                 }
             }
             
-            return View();
+            return View(evento);
         }
     }
 }

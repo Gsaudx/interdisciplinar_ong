@@ -64,6 +64,13 @@ namespace Ong.Services
             return evento;
         }
 
+        public async Task<Evento?> ObterEventoPorId(int eventoId)
+        {
+            return await _context.Eventos
+                .Include(e => e.Ong)
+                .FirstOrDefaultAsync(e => e.EventoId == eventoId);
+        }
+
         public async Task<List<Evento>> ObterEventosPorOng(int ongId)
         {
             return await _context.Eventos

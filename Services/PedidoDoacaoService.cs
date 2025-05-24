@@ -59,6 +59,13 @@ namespace Ong.Services
             return pedidoDoacao;
         }
 
+        public async Task<PedidoDoacao?> ObterPedidoDoacaoPorId(int pedidoDoacaoId)
+        {
+            return await _context.PedidoDoacoes
+                .Include(p => p.Ong)
+                .FirstOrDefaultAsync(p => p.PedidoDoacaoId == pedidoDoacaoId);
+        }
+
         public async Task<List<PedidoDoacao>> ObterPedidosDoacaoPorOng(int ongId)
         {
             return await _context.PedidoDoacoes

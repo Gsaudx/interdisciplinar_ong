@@ -1,0 +1,61 @@
+@model IEnumerable<Evento>
+@using Ong.Models
+@{
+    ViewData["Title"] = "Meus Eventos";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Meus Eventos</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Criar" asp-route-ongId="@ViewBag.OngId" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Novo Evento
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var evento in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">@evento.Nome</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@evento.Descricao</p>
+                            <div class="mb-2">
+                                <i class="fa fa-calendar"></i> <strong>Data:</strong> @evento.Data.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                            <div>
+                                <i class="fa fa-map-marker"></i> <strong>Local:</strong> @evento.Localizacao
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-info btn-sm">
+                                    <i class="fa fa-info-circle"></i> Detalhes
+                                </a>
+                                <a asp-action="Editar" asp-route-id="@evento.EventoId" class="btn btn-warning btn-sm">
+                                    <i class="fa fa-edit"></i> Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>Você ainda não possui eventos cadastrados.</p>
+            <p>Clique em "Novo Evento" para cadastrar seu primeiro evento.</p>
+        </div>
+    }
+</div>

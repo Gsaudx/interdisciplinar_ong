@@ -1,0 +1,90 @@
+@model Evento
+@using Ong.Models
+@{
+    ViewData["Title"] = "Detalhes do Evento";
+    Layout = "_Layout";
+    var voluntarios = ViewBag.Voluntarios as IEnumerable<Voluntario>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>@Model.Nome</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Descrição:</div>
+                        <div class="col-md-9">@Model.Descricao</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Data e Hora:</div>
+                        <div class="col-md-9">@Model.Data.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Local:</div>
+                        <div class="col-md-9">@Model.Localizacao</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Organização:</div>
+                        <div class="col-md-9">@Model.Ong?.Nome</div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a asp-action="MeusEventos" asp-route-ongId="@Model.OngId" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Voltar
+                    </a>
+                    <a asp-action="Editar" asp-route-id="@Model.EventoId" class="btn btn-warning">
+                        <i class="fa fa-edit"></i> Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Voluntários Inscritos</h4>
+                </div>
+                <div class="card-body">
+                    @if (voluntarios != null && voluntarios.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var voluntario in voluntarios)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">@voluntario.Nome</h6>
+                                            <small class="text-muted">@voluntario.Telefone</small>
+                                        </div>
+                                        <div>
+                                            <a href="mailto:@voluntario.EmailPrincipal" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-envelope"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(voluntario.Profissao))
+                                    {
+                                        <small class="d-block mt-1">Profissão: @voluntario.Profissao</small>
+                                    }
+                                    @if (!string.IsNullOrEmpty(voluntario.Disponibilidade))
+                                    {
+                                        <small class="d-block">Disponibilidade: @voluntario.Disponibilidade</small>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            Nenhum voluntário inscrito neste evento ainda.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

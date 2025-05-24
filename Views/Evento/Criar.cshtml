@@ -1,0 +1,62 @@
+@model Evento
+@using Ong.Models
+@{
+    ViewData["Title"] = "Criar Evento";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Criar Evento</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Criar" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" id="ongId" name="ongId" value="@ViewBag.OngId" />
+                        
+                        <div class="form-group mb-3">
+                            <label for="nome" class="control-label">Nome do Evento</label>
+                            <input id="nome" name="nome" class="form-control" required />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="nome" data-valmsg-replace="true"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="descricao" class="control-label">Descrição</label>
+                            <textarea id="descricao" name="descricao" class="form-control" rows="5" placeholder="Descreva detalhadamente o evento..." required></textarea>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="descricao" data-valmsg-replace="true"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="data" class="control-label">Data e Hora</label>
+                                    <input id="data" name="data" type="datetime-local" class="form-control" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="data" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label for="localizacao" class="control-label">Localização</label>
+                                    <input id="localizacao" name="localizacao" class="form-control" placeholder="Endereço completo" required />
+                                    <span class="text-danger field-validation-valid" data-valmsg-for="localizacao" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">Criar Evento</button>
+                            <a asp-action="MeusEventos" asp-route-ongId="@ViewBag.OngId" class="btn btn-secondary">Voltar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

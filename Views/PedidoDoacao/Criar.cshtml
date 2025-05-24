@@ -1,0 +1,53 @@
+@model PedidoDoacao
+@using Ong.Models
+@{
+    ViewData["Title"] = "Criar Pedido de Doação";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Criar Pedido de Doação</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Criar" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" id="ongId" name="ongId" value="@ViewBag.OngId" />
+                        
+                        <div class="form-group mb-3">
+                            <label for="categoria" class="control-label">Categoria</label>
+                            <select id="categoria" name="categoria" class="form-select" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Alimentos">Alimentos</option>
+                                <option value="Roupas">Roupas</option>
+                                <option value="Móveis">Móveis</option>
+                                <option value="Medicamentos">Medicamentos</option>
+                                <option value="Material Escolar">Material Escolar</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="categoria" data-valmsg-replace="true"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="descricao" class="control-label">Descrição</label>
+                            <textarea id="descricao" name="descricao" class="form-control" rows="5" placeholder="Descreva detalhadamente o que está solicitando..." required></textarea>
+                            <span class="text-danger field-validation-valid" data-valmsg-for="descricao" data-valmsg-replace="true"></span>
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">Criar Pedido</button>
+                            <a asp-action="MeusPedidos" asp-route-ongId="@ViewBag.OngId" class="btn btn-secondary">Voltar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

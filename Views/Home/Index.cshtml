@@ -151,6 +151,63 @@
 </section>
 <!-- Call to Action End -->
 
+<!-- Área de Acesso Rápido para ONGs -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()))
+{
+    <section class="ong-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área da ONG</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hand-holding-heart fa-4x text-primary mb-3"></i>
+                            <h3>Pedidos de Doação</h3>
+                            <p>Gerencie seus pedidos de doação e acompanhe as doações recebidas.</p>
+                            <a asp-controller="PedidoDoacao" asp-action="MeusPedidos" class="btn btn-primary">Meus Pedidos</a>
+                            <a asp-controller="PedidoDoacao" asp-action="Criar" class="btn btn-outline-primary">Novo Pedido</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-alt fa-4x text-primary mb-3"></i>
+                            <h3>Eventos</h3>
+                            <p>Organize eventos e gerencie os voluntários inscritos.</p>
+                            <a asp-controller="Evento" asp-action="MeusEventos" class="btn btn-primary">Meus Eventos</a>
+                            <a asp-controller="Evento" asp-action="Criar" class="btn btn-outline-primary">Novo Evento</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Área de Acesso Rápido para Voluntários -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+{
+    <section class="volunteer-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área do Voluntário</h2>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-alt fa-4x text-primary mb-3"></i>
+                            <h3>Meus Eventos</h3>
+                            <p>Acompanhe os eventos em que você se inscreveu como voluntário.</p>
+                            <a asp-controller="Evento" asp-action="MeusEventosVoluntario" class="btn btn-primary">Meus Eventos</a>
+                            <a asp-controller="Evento" asp-action="Index" class="btn btn-outline-primary">Explorar Eventos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
 @section Scripts {
     <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
     <script>
