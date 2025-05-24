@@ -30,14 +30,33 @@
                         <div class="col-md-3 fw-bold">Organização:</div>
                         <div class="col-md-9">@Model.Ong?.Nome</div>
                     </div>
-                </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a asp-action="MeusEventos" asp-route-ongId="@Model.OngId" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Voltar
-                    </a>
-                    <a asp-action="Editar" asp-route-id="@Model.EventoId" class="btn btn-warning">
-                        <i class="fa fa-edit"></i> Editar
-                    </a>
+                </div>                <div class="card-footer d-flex justify-content-between">
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                    {
+                        <a asp-action="MeusEventos" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Meus Eventos
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Lista de Eventos
+                        </a>
+                    }
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                    {
+                        <a asp-action="Editar" asp-route-id="@Model.EventoId" class="btn btn-warning">
+                            <i class="fa fa-edit"></i> Editar
+                        </a>
+                    }
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()) && Model.Data > DateTime.Now)
+                    {
+                        <a asp-action="Inscrever" asp-route-eventoId="@Model.EventoId" asp-route-voluntarioId="@ViewBag.UsuarioId" class="btn btn-success">
+                            <i class="fa fa-check"></i> Voluntariar-se
+                        </a>
+                    }
                 </div>
             </div>
         </div>

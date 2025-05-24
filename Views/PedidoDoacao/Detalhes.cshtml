@@ -33,11 +33,19 @@
                         <div class="col-md-3 fw-bold">Status:</div>
                         <div class="col-md-9">@Model.Status</div>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <a asp-action="MeusPedidos" asp-route-ongId="@Model.OngId" class="btn btn-secondary">
-                        <i class="fa fa-arrow-left"></i> Voltar
-                    </a>
+                </div>                <div class="card-footer">
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                    {
+                        <a asp-action="MeusPedidos" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Meus Pedidos
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Lista de Pedidos
+                        </a>
+                    }
                     
                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Doador.ToString()) && Model.Status == "Aberto")
                     {
@@ -46,19 +54,22 @@
                         </a>
                     }
                     
-                    @if (Model.Status == "Aberto")
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
                     {
-                        <button type="button" class="btn btn-danger float-end" 
-                                onclick="confirmarFechamentoPedido('@Model.PedidoDoacaoId')">
-                            <i class="fa fa-times"></i> Fechar Pedido
-                        </button>
-                    }
-                    @if (Model.Status == "Fechado")
-                    {
-                        <button type="button" class="btn btn-success float-end"
-                                onclick="confirmarReaberturaPedido('@Model.PedidoDoacaoId')">
-                            <i class="fa fa-refresh"></i> Reabrir Pedido
-                        </button>
+                        @if (Model.Status == "Aberto")
+                        {
+                            <button type="button" class="btn btn-danger float-end" 
+                                    onclick="confirmarFechamentoPedido('@Model.PedidoDoacaoId')">
+                                <i class="fa fa-times"></i> Fechar Pedido
+                            </button>
+                        }
+                        @if (Model.Status == "Fechado")
+                        {
+                            <button type="button" class="btn btn-success float-end"
+                                    onclick="confirmarReaberturaPedido('@Model.PedidoDoacaoId')">
+                                <i class="fa fa-refresh"></i> Reabrir Pedido
+                            </button>
+                        }
                     }
                 </div>
             </div>

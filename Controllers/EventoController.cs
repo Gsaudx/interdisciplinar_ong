@@ -95,9 +95,7 @@ namespace Ong.Controllers
             ViewBag.OngId = usuarioId;
             var eventos = await _eventoService.ObterEventosPorOng(usuarioId);
             return View(eventos);
-        }
-
-        // GET: Evento/Detalhes
+        }        // GET: Evento/Detalhes
         public async Task<IActionResult> Detalhes(int id)
         {
             var evento = await _eventoService.ObterEventoPorId(id);
@@ -107,14 +105,16 @@ namespace Ong.Controllers
                 return NotFound();
             }
 
+            // Adicionar informações do usuário atual para a view
+            ViewBag.UsuarioId = _sessaoService.ObterUsuarioId();
+            ViewBag.TipoUsuario = _sessaoService.ObterTipoUsuario();
+
             // Obter voluntários inscritos no evento
             ViewBag.Voluntarios = await _eventoService.ObterVoluntariosPorEvento(id);
             
             return View(evento);
-        }
-
-        // GET: Evento/Inscrever
-        [Authorize]
+        }        // GET: Evento/Inscrever
+        [Authorize(Roles = "Voluntario")]
         public async Task<IActionResult> Inscrever(int eventoId, int voluntarioId)
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
@@ -123,7 +123,9 @@ namespace Ong.Controllers
             if (tipoUsuario != TipoUsuario.Voluntario || usuarioId != voluntarioId)
             {
                 return RedirectToAction("AcessoNegado", "Usuario");
-            }            try
+            }
+            
+            try
             {
                 await _eventoService.InscreverVoluntarioEmEvento(voluntarioId, eventoId);
                 TempData["SuccessMessage"] = "Inscrição realizada com sucesso!";

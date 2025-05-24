@@ -96,10 +96,7 @@ namespace Ong.Controllers
             ViewBag.OngId = usuarioId;
             var pedidos = await _pedidoDoacaoService.ObterPedidosDoacaoPorOng(usuarioId);
             return View(pedidos);
-        }
-
-        // GET: PedidoDoacao/Detalhes
-        [Authorize]
+        }        // GET: PedidoDoacao/Detalhes
         public async Task<IActionResult> Detalhes(int id)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
@@ -112,19 +109,15 @@ namespace Ong.Controllers
             var usuarioId = _sessaoService.ObterUsuarioId();
             var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            // Verificar se o usuário tem permissão para ver os detalhes
-            if (tipoUsuario == TipoUsuario.Organizacao && pedido.OngId != usuarioId)
-            {
-                return RedirectToAction("AcessoNegado", "Usuario");
-            }
+            // Adicionar informações do usuário atual para a view
+            ViewBag.UsuarioId = usuarioId;
+            ViewBag.TipoUsuario = tipoUsuario;
 
             ViewBag.Doacoes = await _doacaoService.ObterDoacoesPorPedido(id);
 
             return View(pedido);
-        }
-
-        // GET: PedidoDoacao/AtualizarStatus
-        [Authorize]
+        }        // GET: PedidoDoacao/AtualizarStatus
+        [Authorize(Roles = "Organizacao")]
         public async Task<IActionResult> AtualizarStatus(int id, string novoStatus)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
@@ -135,13 +128,13 @@ namespace Ong.Controllers
             }
 
             var usuarioId = _sessaoService.ObterUsuarioId();
-            var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
             // Verificar se o usuário tem permissão para atualizar o status
-            if (tipoUsuario != TipoUsuario.Organizacao || pedido.OngId != usuarioId)
+            if (pedido.OngId != usuarioId)
             {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
+            
             try
             {
                 await _pedidoDoacaoService.AtualizarStatusPedidoDoacao(id, novoStatus);
