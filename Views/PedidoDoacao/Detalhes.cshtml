@@ -37,20 +37,19 @@
                 <div class="card-footer">
                     <a asp-action="MeusPedidos" asp-route-ongId="@Model.OngId" class="btn btn-secondary">
                         <i class="fa fa-arrow-left"></i> Voltar
-                    </a>
-                    @if (Model.Status == "Aberto")
+                    </a>                    @if (Model.Status == "Aberto")
                     {
-                        <a asp-action="AtualizarStatus" asp-route-id="@Model.PedidoDoacaoId" asp-route-novoStatus="Fechado" 
-                           class="btn btn-danger float-end" onclick="return confirm('Tem certeza que deseja fechar este pedido?')">
+                        <button type="button" class="btn btn-danger float-end" 
+                                onclick="confirmarFechamentoPedido('@Model.PedidoDoacaoId')">
                             <i class="fa fa-times"></i> Fechar Pedido
-                        </a>
+                        </button>
                     }
                     @if (Model.Status == "Fechado")
                     {
-                        <a asp-action="AtualizarStatus" asp-route-id="@Model.PedidoDoacaoId" asp-route-novoStatus="Aberto"
-                           class="btn btn-success float-end" onclick="return confirm('Tem certeza que deseja reabrir este pedido?')">
+                        <button type="button" class="btn btn-success float-end"
+                                onclick="confirmarReaberturaPedido('@Model.PedidoDoacaoId')">
                             <i class="fa fa-refresh"></i> Reabrir Pedido
-                        </a>
+                        </button>
                     }
                 </div>
             </div>
@@ -90,3 +89,52 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de sucesso
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccessToast('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Função para confirmar fechamento do pedido
+        function confirmarFechamentoPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar fechamento',
+                'Tem certeza que deseja fechar este pedido? Isso indicará que o pedido não está mais aceitando doações.',
+                'Sim, fechar pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Fechado';
+                }
+            );
+        }
+        
+        // Função para confirmar reabertura do pedido
+        function confirmarReaberturaPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar reabertura',
+                'Tem certeza que deseja reabrir este pedido? Isso indicará que o pedido está novamente aceitando doações.',
+                'Sim, reabrir pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Aberto';
+                }
+            );
+        }
+    </script>
+}

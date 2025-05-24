@@ -64,15 +64,16 @@ namespace Ong.Controllers
             ViewBag.OngId = ongId;
 
             if (ModelState.IsValid)
-            {
-                try
+            {                try
                 {
                     await _eventoService.CriarEvento(ongId, nome, descricao, data, localizacao);
+                    TempData["SuccessMessage"] = "Evento criado com sucesso!";
                     return RedirectToAction("MeusEventos");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", ex.Message);
+                    TempData["ErrorMessage"] = "Erro ao criar evento: " + ex.Message;
                 }
             }
             
@@ -122,16 +123,16 @@ namespace Ong.Controllers
             if (tipoUsuario != TipoUsuario.Voluntario || usuarioId != voluntarioId)
             {
                 return RedirectToAction("AcessoNegado", "Usuario");
-            }
-
-            try
+            }            try
             {
                 await _eventoService.InscreverVoluntarioEmEvento(voluntarioId, eventoId);
+                TempData["SuccessMessage"] = "Inscrição realizada com sucesso!";
                 return RedirectToAction("Detalhes", new { id = eventoId });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                TempData["ErrorMessage"] = "Erro ao realizar inscrição: " + ex.Message;
+                return RedirectToAction("Detalhes", new { id = eventoId });
             }
         }
 
@@ -170,16 +171,16 @@ namespace Ong.Controllers
                 (tipoUsuario != TipoUsuario.Voluntario || usuarioId != voluntarioId))
             {
                 return RedirectToAction("AcessoNegado", "Usuario");
-            }
-
-            try
+            }            try
             {
                 await _eventoService.AtualizarStatusInscricao(voluntarioId, eventoId, novoStatus);
+                TempData["SuccessMessage"] = $"Status da inscrição atualizado para {novoStatus} com sucesso!";
                 return RedirectToAction("Detalhes", new { id = eventoId });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                TempData["ErrorMessage"] = "Erro ao atualizar status da inscrição: " + ex.Message;
+                return RedirectToAction("Detalhes", new { id = eventoId });
             }
         }
 

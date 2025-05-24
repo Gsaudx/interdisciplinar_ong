@@ -68,14 +68,16 @@ namespace Ong.Controllers
                 try
                 {
                     await _pedidoDoacaoService.CriarPedidoDoacao(ongId, categoria, descricao);
+                    TempData["SuccessMessage"] = "Pedido de doação criado com sucesso!";
                     return RedirectToAction("MeusPedidos");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", ex.Message);
+                    TempData["ErrorMessage"] = "Erro ao criar pedido: " + ex.Message;
                 }
             }
-            
+
             return View();
         }
 
@@ -101,7 +103,7 @@ namespace Ong.Controllers
         public async Task<IActionResult> Detalhes(int id)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
-            
+
             if (pedido == null)
             {
                 return NotFound();
@@ -117,7 +119,7 @@ namespace Ong.Controllers
             }
 
             ViewBag.Doacoes = await _doacaoService.ObterDoacoesPorPedido(id);
-            
+
             return View(pedido);
         }
 
@@ -126,7 +128,7 @@ namespace Ong.Controllers
         public async Task<IActionResult> AtualizarStatus(int id, string novoStatus)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
-            
+
             if (pedido == null)
             {
                 return NotFound();
@@ -140,15 +142,16 @@ namespace Ong.Controllers
             {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
-
             try
             {
                 await _pedidoDoacaoService.AtualizarStatusPedidoDoacao(id, novoStatus);
+                TempData["SuccessMessage"] = $"Status do pedido alterado para {novoStatus} com sucesso!";
                 return RedirectToAction("Detalhes", new { id });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                TempData["ErrorMessage"] = "Erro ao atualizar status: " + ex.Message;
+                return RedirectToAction("Detalhes", new { id });
             }
         }
     }

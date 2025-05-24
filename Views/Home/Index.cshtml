@@ -1,3 +1,5 @@
+@using Ong.Models
+@using System.Linq
 @{
     ViewData["Title"] = "Início";
 }
@@ -95,20 +97,29 @@
                         </div>
                     }
 
-                    <h3 class="mt-5 mb-4">Pedidos de Doação</h3>
+                    <h3 class="mt-5 mb-4">Pedidos de Doação</h3>                    
                     @if (ViewBag.PedidosDoacaoAbertos != null && ViewBag.PedidosDoacaoAbertos.Count > 0)
                     {
                         <div class="list-group shadow-sm">
-                            @foreach (var pedido in ViewBag.PedidosDoacaoAbertos.Take(3))
+                            @{ 
+                                var pedidosParaMostrar = ViewBag.PedidosDoacaoAbertos;
+                                var contador = 0;
+                            }
+                            
+                            @foreach (var pedido in pedidosParaMostrar)
                             {
-                                <a href="@Url.Action("Detalhes", "PedidoDoacao", new { id = pedido.PedidoDoacaoId })" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">@pedido.Categoria</h5>
-                                        <span class="badge bg-success">@pedido.Status</span>
-                                    </div>
-                                    <p class="mb-1">@pedido.Descricao</p>
-                                    <small class="text-muted"><i class="fas fa-building"></i> @pedido.Ong.Nome</small>
-                                </a>
+                                if (contador < 3)
+                                {
+                                    contador++;
+                                    <a href="@Url.Action("Detalhes", "PedidoDoacao", new { id = pedido.PedidoDoacaoId })" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">@pedido.Categoria</h5>
+                                            <span class="badge bg-success">@pedido.Status</span>
+                                        </div>
+                                        <p class="mb-1">@pedido.Descricao</p>
+                                        <small class="text-muted"><i class="fas fa-building"></i> @pedido.Ong.Nome</small>
+                                    </a>
+                                }
                             }
                         </div>
                         <div class="text-center mt-3">
@@ -135,9 +146,8 @@
             <div class="col-lg-9">
                 <h3>Quer fazer parte dessa transformação?</h3>
                 <p class="mb-0">Cadastre-se agora e comece a doar ou voluntariar-se em causas que fazem a diferença.</p>
-            </div>
-            <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
-                @if (User.Identity.IsAuthenticated)
+            </div>            <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
+                @if (User.Identity?.IsAuthenticated == true)
                 {
                     <a asp-controller="Usuario" asp-action="Perfil" class="btn btn-light btn-lg">Meu Perfil</a>
                 }

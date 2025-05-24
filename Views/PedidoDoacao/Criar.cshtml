@@ -50,4 +50,47 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Adicionar validação do lado do cliente antes de enviar o formulário
+        $('form').submit(function(e) {
+            var categoria = $('#categoria').val();
+            var descricao = $('#descricao').val();
+            
+            if (!categoria) {
+                e.preventDefault();
+                showErrorNotification('Por favor, selecione uma categoria para o pedido.');
+                return false;
+            }
+            
+            if (!descricao || descricao.trim().length < 10) {
+                e.preventDefault();
+                showErrorNotification('Por favor, forneça uma descrição detalhada com pelo menos 10 caracteres.');
+                return false;
+            }
+            
+            // Se tudo estiver correto, mostra uma mensagem de "Enviando..." e permite o envio
+            Swal.fire({
+                title: 'Enviando pedido...',
+                html: 'Por favor, aguarde enquanto processamos seu pedido.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            return true;
+        });
+    </script>
 }
