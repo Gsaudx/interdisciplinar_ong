@@ -1,4 +1,5 @@
 @model List<Evento>
+@using Ong.Models
 
 @{
     ViewData["Title"] = "Eventos";
@@ -18,9 +19,8 @@
                     </div>
                 </div>
             </form>
-        </div>
-        <div class="col-md-6 text-end">
-            @if (User.IsInRole(TipoUsuario.Organizacao.ToString()))
+        </div>        <div class="col-md-6 text-end">
+            @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()))
             {
                 <a asp-action="Criar" class="btn btn-success">
                     <i class="fa fa-plus"></i> Novo Evento
@@ -53,15 +53,13 @@
                                 </small>
                             </p>
                         </div>
-                        <div class="card-footer">
-                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
+                        <div class="card-footer">                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
                                 <i class="fa fa-info-circle"></i> Detalhes
-                            </a>
-                            @if (User.Identity.IsAuthenticated && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+                            </a>                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()))
                             {
-                                <a asp-action="Inscrever" asp-route-eventoId="@evento.EventoId" asp-route-voluntarioId="@ViewBag.UsuarioId" class="btn btn-success btn-sm">
+                                <button type="button" class="btn btn-success btn-sm" onclick="confirmarInscricaoEvento('@evento.EventoId', '@ViewBag.UsuarioId', '@evento.Nome')">
                                     <i class="fa fa-hand-paper-o"></i> Voluntariar-se
-                                </a>
+                                </button>
                             }
                         </div>
                     </div>
@@ -76,3 +74,39 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de sucesso
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccessToast('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Função para confirmar inscrição em evento
+        function confirmarInscricaoEvento(eventoId, voluntarioId, nomeEvento) {
+            showConfirmationDialog(
+                'Confirmação de Inscrição',
+                'Deseja se voluntariar para o evento "' + nomeEvento + '"?',
+                'Sim, quero participar',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("Inscrever")/?eventoId=' + eventoId + '&voluntarioId=' + voluntarioId;
+                }
+            );
+        }
+    </script>
+}

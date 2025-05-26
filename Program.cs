@@ -2,6 +2,7 @@ using Ong.Data;
 using Microsoft.EntityFrameworkCore;
 using Ong.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Ong.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,17 +10,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DbOng>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("default")));
 
-// Registrar serviços para injeção de dependência
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<DoacaoService>();
 builder.Services.AddScoped<PedidoDoacaoService>();
 builder.Services.AddScoped<EventoService>();
 builder.Services.AddScoped<SessaoService>();
 
-// Adicionar HttpContextAccessor para acesso ao HttpContext
 builder.Services.AddHttpContextAccessor();
 
-// Configurar autenticação com cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -28,7 +26,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
-// Configurar sessão
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromHours(2);
@@ -48,11 +45,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// Adicionar middleware de autenticação e autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
+app.UseUserSession();
 
 app.MapControllerRoute(
     name: "default",

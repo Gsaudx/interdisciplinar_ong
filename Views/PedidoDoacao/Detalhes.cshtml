@@ -1,0 +1,168 @@
+@model PedidoDoacao
+@using Ong.Models
+@{
+    ViewData["Title"] = "Detalhes do Pedido de Doação";
+    Layout = "_Layout";
+    var doacoes = ViewBag.Doacoes as IEnumerable<Doacao>;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4>Detalhes do Pedido de Doação</h4>
+                    <span class="badge @(Model.Status == "Aberto" ? "bg-success" : Model.Status == "Fechado" ? "bg-danger" : "bg-warning")">
+                        @Model.Status
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Categoria:</div>
+                        <div class="col-md-9">@Model.Categoria</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Descrição:</div>
+                        <div class="col-md-9">@Model.Descricao</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">ONG:</div>
+                        <div class="col-md-9">@Model.Ong?.Nome</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">Status:</div>
+                        <div class="col-md-9">@Model.Status</div>
+                    </div>
+                </div>                <div class="card-footer">
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                    {
+                        <a asp-action="MeusPedidos" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Meus Pedidos
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left"></i> Voltar para Lista de Pedidos
+                        </a>
+                    }
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Doador.ToString()) && Model.Status == "Aberto")
+                    {
+                        <a asp-controller="Doacao" asp-action="Realizar" asp-route-pedidoId="@Model.PedidoDoacaoId" class="btn btn-primary ms-2">
+                            <i class="fa fa-heart"></i> Doar para este Pedido
+                        </a>
+                    }
+                    
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                    {
+                        @if (Model.Status == "Aberto")
+                        {
+                            <button type="button" class="btn btn-danger float-end" 
+                                    onclick="confirmarFechamentoPedido('@Model.PedidoDoacaoId')">
+                                <i class="fa fa-times"></i> Fechar Pedido
+                            </button>
+                        }
+                        @if (Model.Status == "Fechado")
+                        {
+                            <button type="button" class="btn btn-success float-end"
+                                    onclick="confirmarReaberturaPedido('@Model.PedidoDoacaoId')">
+                                <i class="fa fa-refresh"></i> Reabrir Pedido
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">                <div class="card-header">
+                    <h4>Doações Recebidas</h4>
+                </div>
+                <div class="card-body">
+                    @if (doacoes != null && doacoes.Any())
+                    {
+                        <ul class="list-group">
+                            @foreach (var doacao in doacoes.Take(3))
+                            {
+                                <li class="list-group-item">                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">@doacao.Doador?.Nome</h6>
+                                            <small class="text-muted">@doacao.DataDoacao.ToString("dd/MM/yyyy")</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0">@doacao.Descricao</p>
+                                </li>
+                            }
+                        </ul>
+                        
+                        @if (doacoes.Count() > 3)
+                        {
+                            <div class="text-center mt-3">
+                                <a asp-controller="Doacao" asp-action="DoacoesPorPedido" asp-route-pedidoId="@Model.PedidoDoacaoId" class="btn btn-outline-primary btn-sm">
+                                    Ver todas as @doacoes.Count() doações
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            Nenhuma doação recebida para este pedido ainda.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de sucesso
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccessToast('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Função para confirmar fechamento do pedido
+        function confirmarFechamentoPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar fechamento',
+                'Tem certeza que deseja fechar este pedido? Isso indicará que o pedido não está mais aceitando doações.',
+                'Sim, fechar pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Fechado';
+                }
+            );
+        }
+        
+        // Função para confirmar reabertura do pedido
+        function confirmarReaberturaPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar reabertura',
+                'Tem certeza que deseja reabrir este pedido? Isso indicará que o pedido está novamente aceitando doações.',
+                'Sim, reabrir pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Aberto';
+                }
+            );
+        }
+    </script>
+}

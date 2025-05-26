@@ -11,33 +11,44 @@ namespace Ong.Controllers
         private readonly UsuarioService _usuarioService;
         private readonly EventoService _eventoService;
         private readonly PedidoDoacaoService _pedidoDoacaoService;
+        private readonly SessaoService _sessaoService;
         private readonly IConfiguration _configuration;
 
         public HomeController(
             UsuarioService usuarioService, 
             EventoService eventoService, 
             PedidoDoacaoService pedidoDoacaoService,
+            SessaoService sessaoService,
             IConfiguration configuration)
         {
             _usuarioService = usuarioService;
             _eventoService = eventoService;
             _pedidoDoacaoService = pedidoDoacaoService;
+            _sessaoService = sessaoService;
             _configuration = configuration;
-        }
-
-        public async Task<IActionResult> Index()
+        }        public async Task<IActionResult> Index()
         {
-            // Carregar ONGs para o mapa
             ViewBag.Ongs = await _usuarioService.ObterUsuariosPorTipo(TipoUsuario.Organizacao);
-            
-            // Carregar próximos eventos
             ViewBag.ProximosEventos = await _eventoService.ObterEventosFuturos();
-            
-            // Carregar pedidos de doação abertos
             ViewBag.PedidosDoacaoAbertos = await _pedidoDoacaoService.ObterPedidosDoacaoPorStatus("Aberto");
-            
-            // Passar a API key do Google Maps para a view
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
+            
+            if (_sessaoService.EstaAutenticado())
+            {
+                var usuarioAtual = await _sessaoService.ObterUsuarioAtual();
+                if (usuarioAtual != null && usuarioAtual.Latitude.HasValue && usuarioAtual.Longitude.HasValue)
+                {
+                    ViewBag.UsuarioLatitude = usuarioAtual.Latitude;
+                    ViewBag.UsuarioLongitude = usuarioAtual.Longitude;
+                    
+                    // Buscar ONGs próximas (raio de 10km)
+                    ViewBag.OngsProximas = await _usuarioService.ObterONGsProximas(
+                        usuarioAtual.Latitude.Value, 
+                        usuarioAtual.Longitude.Value, 
+                        10
+                    );
+                }
+            }
             
             return View();
         }
@@ -61,7 +72,7 @@ namespace Ong.Controllers
 
     public class ErrorViewModel
     {
-        public string RequestId { get; set; }
+        public string? RequestId { get; set; }
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }

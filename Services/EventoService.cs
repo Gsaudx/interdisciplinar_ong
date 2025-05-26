@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Services\EventoService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +15,8 @@ namespace Ong.Services
         public EventoService(DbOng context)
         {
             _context = context;
-        }
-
-        public async Task<Evento> CriarEvento(int ongId, string nome, string descricao, DateTime data, string localizacao)
+        }        public async Task<Evento> CriarEvento(int ongId, string nome, string descricao, DateTime data, string localizacao, int duracaoMinutos = 120)
         {
-            // Verificar se a ONG existe
             var ong = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == ongId && u.Tipo == TipoUsuario.Organizacao);
             
@@ -29,23 +25,21 @@ namespace Ong.Services
                 throw new Exception("ONG não encontrada ou usuário não é uma organização.");
             }
 
-            // Criar o evento
             var evento = new Evento
             {
                 OngId = ongId,
                 Nome = nome,
                 Descricao = descricao,
                 Data = data,
-                Localizacao = localizacao
+                Localizacao = localizacao,
+                DuracaoMinutos = duracaoMinutos
             };
 
             await _context.Eventos.AddAsync(evento);
             await _context.SaveChangesAsync();
 
             return evento;
-        }
-
-        public async Task<Evento> AtualizarEvento(int eventoId, string nome, string descricao, DateTime data, string localizacao)
+        }        public async Task<Evento> AtualizarEvento(int eventoId, string nome, string descricao, DateTime data, string localizacao, int duracaoMinutos = 120)
         {
             var evento = await _context.Eventos.FindAsync(eventoId);
             
@@ -58,10 +52,18 @@ namespace Ong.Services
             evento.Descricao = descricao;
             evento.Data = data;
             evento.Localizacao = localizacao;
+            evento.DuracaoMinutos = duracaoMinutos;
 
             await _context.SaveChangesAsync();
 
             return evento;
+        }
+
+        public async Task<Evento?> ObterEventoPorId(int eventoId)
+        {
+            return await _context.Eventos
+                .Include(e => e.Ong)
+                .FirstOrDefaultAsync(e => e.EventoId == eventoId);
         }
 
         public async Task<List<Evento>> ObterEventosPorOng(int ongId)
@@ -83,7 +85,6 @@ namespace Ong.Services
 
         public async Task<VoluntarioEvento> InscreverVoluntarioEmEvento(int voluntarioId, int eventoId)
         {
-            // Verificar se o voluntário existe
             var voluntario = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == voluntarioId && u.Tipo == TipoUsuario.Voluntario);
             
@@ -92,7 +93,6 @@ namespace Ong.Services
                 throw new Exception("Voluntário não encontrado ou usuário não é um voluntário.");
             }
 
-            // Verificar se o evento existe
             var evento = await _context.Eventos.FindAsync(eventoId);
             
             if (evento == null)
@@ -100,7 +100,6 @@ namespace Ong.Services
                 throw new Exception("Evento não encontrado.");
             }
 
-            // Verificar se o voluntário já está inscrito no evento
             var inscricaoExistente = await _context.VoluntarioEventos
                 .FirstOrDefaultAsync(ve => ve.VoluntarioId == voluntarioId && ve.EventoId == eventoId);
             
@@ -109,7 +108,12 @@ namespace Ong.Services
                 throw new Exception("Voluntário já está inscrito neste evento.");
             }
 
-            // Criar a inscrição
+            var conflitoHorario = await VerificarConflitoHorario(voluntarioId, eventoId);
+            if (conflitoHorario)
+            {
+                throw new Exception("Conflito de horário: o voluntário já está inscrito em outro evento no mesmo horário.");
+            }
+
             var voluntarioEvento = new VoluntarioEvento
             {
                 VoluntarioId = voluntarioId,
@@ -157,6 +161,38 @@ namespace Ong.Services
                 .Include(ve => ve.Voluntario)
                 .Select(ve => ve.Voluntario)
                 .ToListAsync();
+        }
+
+        private async Task<bool> VerificarConflitoHorario(int voluntarioId, int eventoId)
+        {
+            var novoEvento = await _context.Eventos.FindAsync(eventoId);
+            if (novoEvento == null)
+                return false;
+
+            var novoEventoInicio = novoEvento.Data;
+            var novoEventoTermino = novoEvento.Data.AddMinutes(novoEvento.DuracaoMinutos);
+
+            var eventosInscritos = await _context.VoluntarioEventos
+                .Where(ve => ve.VoluntarioId == voluntarioId && ve.Status != "Cancelado")
+                .Include(ve => ve.Evento)
+                .Select(ve => ve.Evento)
+                .ToListAsync();
+
+            foreach (var eventoExistente in eventosInscritos)
+            {
+                var eventoExistenteInicio = eventoExistente.Data;
+                var eventoExistenteTermino = eventoExistente.Data.AddMinutes(eventoExistente.DuracaoMinutos);
+
+                if ((novoEventoInicio < eventoExistenteTermino && novoEventoInicio >= eventoExistenteInicio) ||
+                    (novoEventoTermino <= eventoExistenteTermino && novoEventoTermino > eventoExistenteInicio) ||
+                    (eventoExistenteInicio < novoEventoTermino && eventoExistenteInicio >= novoEventoInicio) ||
+                    (eventoExistenteTermino <= novoEventoTermino && eventoExistenteTermino > novoEventoInicio))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Services\UsuarioService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,43 +19,38 @@ namespace Ong.Services
 
         public async Task<Usuario> CriarUsuario(Usuario usuario, string senha)
         {
-            // Verificar se o email já existe
             if (await _context.Usuarios.AnyAsync(u => u.EmailPrincipal == usuario.EmailPrincipal))
             {
                 throw new Exception("Este email já está sendo utilizado.");
             }
 
-            // Hash da senha
             usuario.Senha = PasswordHelper.HashPassword(senha);
             
-            // Definir data de cadastro
             usuario.DataCadastro = DateTime.Now;
 
-            // Adicionar usuário ao contexto
             await _context.Usuarios.AddAsync(usuario);
             await _context.SaveChangesAsync();
 
             return usuario;
-        }        public async Task<Usuario> AtualizarUsuario(Usuario usuario)
+        }
+
+        public async Task<Usuario> AtualizarUsuario(Usuario usuario)
         {
-            // Verificar se o email já está em uso por outro usuário
             var usuarioComMesmoEmail = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.EmailPrincipal == usuario.EmailPrincipal && u.UsuarioId != usuario.UsuarioId);
-                
+
             if (usuarioComMesmoEmail != null)
             {
                 throw new Exception("Este email já está sendo utilizado por outro usuário.");
             }
 
-            // Obter o usuário atual do banco de dados
             var usuarioAtual = await _context.Usuarios.FindAsync(usuario.UsuarioId);
-            
+
             if (usuarioAtual == null)
             {
                 throw new Exception("Usuário não encontrado.");
             }
 
-            // Atualizar os campos comuns a todos os usuários
             usuarioAtual.Nome = usuario.Nome;
             usuarioAtual.EmailPrincipal = usuario.EmailPrincipal;
             usuarioAtual.Telefone = usuario.Telefone;
@@ -69,9 +63,7 @@ namespace Ong.Services
             usuarioAtual.Cep = usuario.Cep;
             usuarioAtual.Latitude = usuario.Latitude;
             usuarioAtual.Longitude = usuario.Longitude;
-            
-            // Preservar a coleção de contatos existente
-            // Isso garante que os contatos não sejam perdidos durante a atualização
+
             if (usuarioAtual.Contatos != null && usuario.Contatos == null)
             {
                 usuario.Contatos = usuarioAtual.Contatos;
@@ -79,7 +71,6 @@ namespace Ong.Services
 
             try
             {
-                // Atualizar campos específicos com base no tipo de usuário
                 if (usuarioAtual.Tipo == TipoUsuario.Doador)
                 {
                     var doadorAtual = await _context.Doadores.FindAsync(usuario.UsuarioId);
@@ -92,13 +83,12 @@ namespace Ong.Services
                         }
                         else
                         {
-                            // Caso receba um objeto Usuario genérico
                             var cpf = usuario.GetType().GetProperty("Cpf")?.GetValue(usuario)?.ToString();
                             var dataNascimentoStr = usuario.GetType().GetProperty("DataNascimento")?.GetValue(usuario)?.ToString();
 
                             if (!string.IsNullOrEmpty(cpf))
                                 doadorAtual.Cpf = cpf;
-                                
+
                             if (!string.IsNullOrEmpty(dataNascimentoStr) && DateTime.TryParse(dataNascimentoStr, out DateTime dataNascimento))
                                 doadorAtual.DataNascimento = dataNascimento;
                         }
@@ -118,7 +108,6 @@ namespace Ong.Services
                         }
                         else
                         {
-                            // Caso receba um objeto Usuario genérico
                             var cpf = usuario.GetType().GetProperty("Cpf")?.GetValue(usuario)?.ToString();
                             var dataNascimentoStr = usuario.GetType().GetProperty("DataNascimento")?.GetValue(usuario)?.ToString();
                             var profissao = usuario.GetType().GetProperty("Profissao")?.GetValue(usuario)?.ToString();
@@ -126,13 +115,13 @@ namespace Ong.Services
 
                             if (!string.IsNullOrEmpty(cpf))
                                 voluntarioAtual.Cpf = cpf;
-                                
+
                             if (!string.IsNullOrEmpty(dataNascimentoStr) && DateTime.TryParse(dataNascimentoStr, out DateTime dataNascimento))
                                 voluntarioAtual.DataNascimento = dataNascimento;
-                                
+
                             if (!string.IsNullOrEmpty(profissao))
                                 voluntarioAtual.Profissao = profissao;
-                                
+
                             if (!string.IsNullOrEmpty(disponibilidade))
                                 voluntarioAtual.Disponibilidade = disponibilidade;
                         }
@@ -153,7 +142,6 @@ namespace Ong.Services
                         }
                         else
                         {
-                            // Caso receba um objeto Usuario genérico
                             var cnpj = usuario.GetType().GetProperty("Cnpj")?.GetValue(usuario)?.ToString();
                             var razaoSocial = usuario.GetType().GetProperty("RazaoSocial")?.GetValue(usuario)?.ToString();
                             var nomeFantasia = usuario.GetType().GetProperty("NomeFantasia")?.GetValue(usuario)?.ToString();
@@ -162,16 +150,16 @@ namespace Ong.Services
 
                             if (!string.IsNullOrEmpty(cnpj))
                                 ongAtual.Cnpj = cnpj;
-                                
+
                             if (!string.IsNullOrEmpty(razaoSocial))
                                 ongAtual.RazaoSocial = razaoSocial;
-                                
+
                             if (!string.IsNullOrEmpty(nomeFantasia))
                                 ongAtual.NomeFantasia = nomeFantasia;
-                                
+
                             if (!string.IsNullOrEmpty(dataFundacaoStr) && DateTime.TryParse(dataFundacaoStr, out DateTime dataFundacao))
                                 ongAtual.DataFundacao = dataFundacao;
-                                
+
                             if (!string.IsNullOrEmpty(descricao))
                                 ongAtual.Descricao = descricao;
                         }
@@ -181,12 +169,10 @@ namespace Ong.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Erro ao atualizar campos específicos: {ex.Message}");
-                // Continuar mesmo com erro nos campos específicos
             }
 
             await _context.SaveChangesAsync();
-            
-            // Retorna o usuário atualizado com o tipo específico
+
             return await ObterUsuarioPorId(usuarioAtual.UsuarioId);
         }
 
@@ -214,7 +200,6 @@ namespace Ong.Services
                 return null;
             }
             
-            // Retornar o tipo específico de usuário baseado no enum Tipo
             if (usuario.Tipo == TipoUsuario.Doador)
             {
                 return await _context.Doadores.FindAsync(id);
@@ -240,8 +225,6 @@ namespace Ong.Services
 
         public async Task<List<Usuario>> ObterONGsProximas(double latitude, double longitude, double raioKm)
         {
-            // Implementação simples de cálculo de distância euclidiana
-            // Para uma implementação mais precisa, considere usar fórmulas de distância geográfica como Haversine
             var ongs = await _context.Usuarios
                 .Where(u => u.Tipo == TipoUsuario.Organizacao && u.Latitude.HasValue && u.Longitude.HasValue)
                 .ToListAsync();
@@ -251,8 +234,7 @@ namespace Ong.Services
 
         private double CalcularDistancia(double lat1, double lon1, double lat2, double lon2)
         {
-            // Implementação simples usando a fórmula de Haversine
-            // Raio da Terra em km
+            //Formula de Haversine para calcular a distância entre dois pontos na superfície da Terra
             const double R = 6371;
             
             var dLat = Deg2Rad(lat2 - lat1);

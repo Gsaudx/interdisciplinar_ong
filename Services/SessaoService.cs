@@ -17,9 +17,7 @@ namespace Ong.Services
         {
             _httpContextAccessor = httpContextAccessor;
             _context = context;
-        }
-
-        public async Task LogarUsuario(Usuario usuario)
+        }        public async Task LogarUsuario(Usuario usuario)
         {
             var claims = new[]
             {
@@ -32,45 +30,53 @@ namespace Ong.Services
             var identidade = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identidade);
 
-            await _httpContextAccessor.HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddDays(7)
-                });
-        }
-
-        public async Task Logout()
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                await _httpContextAccessor.HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTime.UtcNow.AddDays(7)
+                    });
+                    
+                _httpContextAccessor.HttpContext.Session.SetInt32("UsuarioId", usuario.UsuarioId);
+                _httpContextAccessor.HttpContext.Session.SetInt32("TipoUsuario", (int)usuario.Tipo);
+            }
+        }        public async Task Logout()
         {
-            await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                
+                _httpContextAccessor.HttpContext.Session.Remove("UsuarioId");
+                _httpContextAccessor.HttpContext.Session.Remove("TipoUsuario");
+            }
         }
 
         public bool EstaAutenticado()
         {
-            return _httpContextAccessor.HttpContext.User.Identity.IsAuthenticated;
+            return _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated == true;
         }
 
         public int ObterUsuarioId()
         {
-            if (!EstaAutenticado())
+            if (!EstaAutenticado() || _httpContextAccessor.HttpContext == null)
                 return 0;
 
             var claim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier);
             return claim != null ? int.Parse(claim.Value) : 0;
-        }
-
-        public TipoUsuario ObterTipoUsuario()
+        }        public TipoUsuario ObterTipoUsuario()
         {
-            if (!EstaAutenticado())
+            if (!EstaAutenticado() || _httpContextAccessor.HttpContext == null)
                 return 0;
 
             var claim = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role);
             return claim != null ? Enum.Parse<TipoUsuario>(claim.Value) : 0;
         }
 
-        public async Task<Usuario> ObterUsuarioAtual()
+        public async Task<Usuario?> ObterUsuarioAtual()
         {
             var usuarioId = ObterUsuarioId();
             if (usuarioId == 0)

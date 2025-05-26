@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Services\DoacaoService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +19,6 @@ namespace Ong.Services
 
         public async Task<Doacao> RealizarDoacao(int doadorId, int ongId, int? pedidoDoacaoId, string categoria, string descricao)
         {
-            // Verificar se o doador existe
             var doador = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == doadorId && u.Tipo == TipoUsuario.Doador);
             
@@ -29,7 +27,6 @@ namespace Ong.Services
                 throw new Exception("Doador não encontrado ou usuário não é um doador.");
             }
 
-            // Verificar se a ONG existe
             var ong = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == ongId && u.Tipo == TipoUsuario.Organizacao);
             
@@ -38,7 +35,6 @@ namespace Ong.Services
                 throw new Exception("ONG não encontrada ou usuário não é uma organização.");
             }
 
-            // Verificar se o pedido de doação existe, se fornecido
             if (pedidoDoacaoId.HasValue)
             {
                 var pedidoDoacao = await _context.PedidoDoacoes
@@ -50,7 +46,6 @@ namespace Ong.Services
                 }
             }
 
-            // Criar a doação
             var doacao = new Doacao
             {
                 DoadorId = doadorId,

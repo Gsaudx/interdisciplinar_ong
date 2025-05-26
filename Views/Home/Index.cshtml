@@ -1,3 +1,5 @@
+@using Ong.Models
+@using System.Linq
 @{
     ViewData["Title"] = "Início";
 }
@@ -65,6 +67,24 @@
         <div class="row">
             <div class="col-lg-8">
                 <div id="map" style="height: 500px; width: 100%; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></div>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-info-circle"></i> Informação</h5>
+                            <p class="card-text">O mapa está mostrando ONGs em um raio de 10km da sua localização. O marcador azul representa sua localização.</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><i class="fas fa-info-circle"></i> Informação</h5>
+                            <p class="card-text">Para ver ONGs próximas à sua localização, <a asp-controller="Usuario" asp-action="Login">faça login</a> ou permita o acesso à sua localização no navegador.</p>
+                        </div>
+                    </div>
+                }
             </div>
             <div class="col-lg-4">
                 <div class="sidebar">
@@ -95,20 +115,29 @@
                         </div>
                     }
 
-                    <h3 class="mt-5 mb-4">Pedidos de Doação</h3>
+                    <h3 class="mt-5 mb-4">Pedidos de Doação</h3>                    
                     @if (ViewBag.PedidosDoacaoAbertos != null && ViewBag.PedidosDoacaoAbertos.Count > 0)
                     {
                         <div class="list-group shadow-sm">
-                            @foreach (var pedido in ViewBag.PedidosDoacaoAbertos.Take(3))
+                            @{ 
+                                var pedidosParaMostrar = ViewBag.PedidosDoacaoAbertos;
+                                var contador = 0;
+                            }
+                            
+                            @foreach (var pedido in pedidosParaMostrar)
                             {
-                                <a href="@Url.Action("Detalhes", "PedidoDoacao", new { id = pedido.PedidoDoacaoId })" class="list-group-item list-group-item-action">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">@pedido.Categoria</h5>
-                                        <span class="badge bg-success">@pedido.Status</span>
-                                    </div>
-                                    <p class="mb-1">@pedido.Descricao</p>
-                                    <small class="text-muted"><i class="fas fa-building"></i> @pedido.Ong.Nome</small>
-                                </a>
+                                if (contador < 3)
+                                {
+                                    contador++;
+                                    <a href="@Url.Action("Detalhes", "PedidoDoacao", new { id = pedido.PedidoDoacaoId })" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h5 class="mb-1">@pedido.Categoria</h5>
+                                            <span class="badge bg-success">@pedido.Status</span>
+                                        </div>
+                                        <p class="mb-1">@pedido.Descricao</p>
+                                        <small class="text-muted"><i class="fas fa-building"></i> @pedido.Ong.Nome</small>
+                                    </a>
+                                }
                             }
                         </div>
                         <div class="text-center mt-3">
@@ -135,9 +164,8 @@
             <div class="col-lg-9">
                 <h3>Quer fazer parte dessa transformação?</h3>
                 <p class="mb-0">Cadastre-se agora e comece a doar ou voluntariar-se em causas que fazem a diferença.</p>
-            </div>
-            <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
-                @if (User.Identity.IsAuthenticated)
+            </div>            <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
+                @if (User.Identity?.IsAuthenticated == true)
                 {
                     <a asp-controller="Usuario" asp-action="Perfil" class="btn btn-light btn-lg">Meu Perfil</a>
                 }
@@ -151,12 +179,99 @@
 </section>
 <!-- Call to Action End -->
 
+<!-- Área de Acesso Rápido para ONGs -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()))
+{
+    <section class="ong-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área da ONG</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hand-holding-heart fa-4x text-primary mb-3"></i>
+                            <h3>Pedidos de Doação</h3>
+                            <p>Gerencie seus pedidos de doação e acompanhe as doações recebidas.</p>
+                            <a asp-controller="PedidoDoacao" asp-action="MeusPedidos" class="btn btn-primary">Meus Pedidos</a>
+                            <a asp-controller="PedidoDoacao" asp-action="Criar" class="btn btn-outline-primary">Novo Pedido</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-alt fa-4x text-primary mb-3"></i>
+                            <h3>Eventos</h3>
+                            <p>Organize eventos e gerencie os voluntários inscritos.</p>
+                            <a asp-controller="Evento" asp-action="MeusEventos" class="btn btn-primary">Meus Eventos</a>
+                            <a asp-controller="Evento" asp-action="Criar" class="btn btn-outline-primary">Novo Evento</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Área de Acesso Rápido para Voluntários -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+{
+    <section class="volunteer-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área do Voluntário</h2>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-alt fa-4x text-primary mb-3"></i>
+                            <h3>Meus Eventos</h3>
+                            <p>Acompanhe os eventos em que você se inscreveu como voluntário.</p>
+                            <a asp-controller="Evento" asp-action="MeusEventosVoluntario" class="btn btn-primary">Meus Eventos</a>
+                            <a asp-controller="Evento" asp-action="Index" class="btn btn-outline-primary">Explorar Eventos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Área de Acesso Rápido para Doadores -->
+@if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Doador.ToString()))
+{
+    <section class="doador-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Área do Doador</h2>
+            <div class="row">
+                <div class="col-md-6 mx-auto">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <i class="fas fa-hand-holding-heart fa-4x text-primary mb-3"></i>
+                            <h3>Minhas Doações</h3>
+                            <p>Acompanhe suas doações e faça novas contribuições para as ONGs.</p>
+                            <a asp-controller="Doacao" asp-action="MinhasDoacoes" class="btn btn-primary">Minhas Doações</a>
+                            <a asp-controller="Doacao" asp-action="Realizar" class="btn btn-outline-primary">Nova Doação</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
 @section Scripts {
-    <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
     <script>
         let map;
         let userMarker;
         const ongs = @Html.Raw(Json.Serialize(ViewBag.Ongs ?? new List<Usuario>()));
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            const script = document.createElement("script");
+            script.src = "https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places&callback=initMap";
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        });
 
         // Inicialização do contador de estatísticas
         $('.counter').each(function () {
@@ -169,11 +284,17 @@
                     $(this).text(Math.ceil(now));
                 }
             });
-        });
-
+        });        
+        
         function initMap() {
-            // Inicializar o mapa
-            map = new google.maps.Map(document.getElementById("map"), {
+            console.log("Iniciando mapa");
+            const mapElement = document.getElementById("map");
+            if (!mapElement) {
+                console.error("Elemento do mapa não encontrado");
+                return;
+            }
+            
+            map = new google.maps.Map(mapElement, {
                 center: { lat: -23.550520, lng: -46.633308 }, // São Paulo como default
                 zoom: 12,
                 styles: [
@@ -220,46 +341,84 @@
                 ]
             });
 
-            // Tentar obter a localização do usuário
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userPosition = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
+            @if (ViewBag.UsuarioLatitude != null && ViewBag.UsuarioLongitude != null)
+            {
+                <text>
+                // Usar a localização do usuário logado
+                const userPosition = {
+                    lat: @ViewBag.UsuarioLatitude,
+                    lng: @ViewBag.UsuarioLongitude
+                };
 
-                        // Centralizar o mapa na posição do usuário
-                        map.setCenter(userPosition);
+                map.setCenter(userPosition);
 
-                        // Adicionar um marcador para o usuário
-                        userMarker = new google.maps.Marker({
-                            position: userPosition,
-                            map: map,
-                            title: "Sua localização",
-                            icon: {
-                                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                            },
-                            animation: google.maps.Animation.DROP
-                        });
-
-                        // Adicionar marcadores para as ONGs próximas
-                        adicionarMarcadoresOngs(userPosition);
+                userMarker = new google.maps.Marker({
+                    position: userPosition,
+                    map: map,
+                    title: "Sua localização",
+                    icon: {
+                        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                     },
-                    () => {
-                        // Se não conseguir obter a localização, apenas mostrar as ONGs no mapa
-                        adicionarMarcadoresOngs();
-                    }
-                );
-            } else {
-                // Navegador não suporta geolocalização
-                adicionarMarcadoresOngs();
-            }
-        }
+                    animation: google.maps.Animation.DROP
+                });
 
-        function adicionarMarcadoresOngs(userPosition = null) {
-            ongs.forEach(ong => {
+                const circle = new google.maps.Circle({
+                    strokeColor: "#1E90FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#1E90FF",
+                    fillOpacity: 0.1,
+                    map: map,
+                    center: userPosition,
+                    radius: 10000 // 10km em metros
+                });
+
+                const ongsProximas = @Html.Raw(Json.Serialize(ViewBag.OngsProximas ?? new List<Usuario>()));
+                adicionarMarcadoresOngsProximas(userPosition, ongsProximas);
+                </text>
+            }
+            else
+            {
+                <text>
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userPosition = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+
+                            map.setCenter(userPosition);
+
+                            userMarker = new google.maps.Marker({
+                                position: userPosition,
+                                map: map,
+                                title: "Sua localização",
+                                icon: {
+                                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                                },
+                                animation: google.maps.Animation.DROP
+                            });
+
+                            adicionarMarcadoresOngs(userPosition);
+                        },
+                        () => {
+                            adicionarMarcadoresOngs();
+                        }
+                    );
+                } else {
+                    // Navegador não suporta geolocalização
+                    adicionarMarcadoresOngs();
+                }
+                </text>
+            }
+        }        
+        
+        function adicionarMarcadoresOngsProximas(userPosition, ongsProximas) {
+            console.log("ONGs próximas:", ongsProximas);
+            ongsProximas.forEach(ong => {
                 if (ong.latitude && ong.longitude) {
+                    console.log("Adicionando marcador para ONG:", ong.nome, ong.latitude, ong.longitude);
                     const marker = new google.maps.Marker({
                         position: { lat: ong.latitude, lng: ong.longitude },
                         map: map,
@@ -270,7 +429,42 @@
                         }
                     });
 
-                    // Adicionar InfoWindow para exibir informações da ONG
+                    const distancia = calcularDistancia(userPosition.lat, userPosition.lng, ong.latitude, ong.longitude);
+
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div style="max-width: 300px; padding: 10px;">
+                                <h5 style="margin-top: 0;">${ong.nome}</h5>
+                                <p style="margin-bottom: 5px;"><strong>Endereço:</strong> ${ong.logradouro}, ${ong.numero} - ${ong.bairro}</p>
+                                <p style="margin-bottom: 10px;">${ong.cidade} - ${ong.estado}</p>
+                                <p style="margin-bottom: 10px;"><strong>Distância:</strong> ${distancia.toFixed(1)} km</p>
+                                <a href="/Usuario/Perfil/${ong.usuarioId}" class="btn btn-primary btn-sm" style="text-decoration: none; color: white; background-color: #007bff; padding: 5px 10px; border-radius: 3px;">Ver Perfil</a>
+                            </div>
+                        `
+                    });
+
+                    marker.addListener("click", () => {
+                        infoWindow.open(map, marker);
+                    });
+                }
+            });
+        }        
+        
+        function adicionarMarcadoresOngs(userPosition = null) {
+            console.log("Todas as ONGs:", ongs);
+            ongs.forEach(ong => {
+                if (ong.latitude && ong.longitude) {
+                    console.log("Adicionando marcador para ONG:", ong.nome, ong.latitude, ong.longitude);
+                    const marker = new google.maps.Marker({
+                        position: { lat: ong.latitude, lng: ong.longitude },
+                        map: map,
+                        title: ong.nome,
+                        animation: google.maps.Animation.DROP,
+                        icon: {
+                            url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                        }
+                    });
+
                     const infoWindow = new google.maps.InfoWindow({
                         content: `
                             <div style="max-width: 300px; padding: 10px;">
@@ -305,10 +499,14 @@
 
         function deg2rad(deg) {
             return deg * (Math.PI / 180);
-        }
-
-        // Iniciar o mapa quando o script do Google Maps estiver carregado
+        }        // Expõe a função initMap para o callback do Google Maps API
         window.initMap = initMap;
+        
+        // Se o Google Maps API já estiver carregado manualmente, inicializa o mapa
+        if (typeof google !== 'undefined' && google.maps) {
+            console.log("Google Maps já carregado, inicializando mapa");
+            initMap();
+        }
 
         // Smooth scroll para âncoras na mesma página
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

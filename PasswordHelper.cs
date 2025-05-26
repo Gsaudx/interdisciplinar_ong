@@ -27,7 +27,7 @@ public static class PasswordHelper
         var elements = passwordHash.Split(Delimiter);
         if (elements.Length != 2)
         {
-            return false; // Formato inválido
+            return false;
         }
         var salt = Convert.FromBase64String(elements[0]);
         var hash = Convert.FromBase64String(elements[1]);

@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Services\PedidoDoacaoService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +19,6 @@ namespace Ong.Services
 
         public async Task<PedidoDoacao> CriarPedidoDoacao(int ongId, string categoria, string descricao, string status = "Aberto")
         {
-            // Verificar se a ONG existe
             var ong = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == ongId && u.Tipo == TipoUsuario.Organizacao);
             
@@ -29,7 +27,6 @@ namespace Ong.Services
                 throw new Exception("ONG não encontrada ou usuário não é uma organização.");
             }
 
-            // Criar o pedido de doação
             var pedidoDoacao = new PedidoDoacao
             {
                 OngId = ongId,
@@ -57,6 +54,13 @@ namespace Ong.Services
             await _context.SaveChangesAsync();
 
             return pedidoDoacao;
+        }
+
+        public async Task<PedidoDoacao?> ObterPedidoDoacaoPorId(int pedidoDoacaoId)
+        {
+            return await _context.PedidoDoacoes
+                .Include(p => p.Ong)
+                .FirstOrDefaultAsync(p => p.PedidoDoacaoId == pedidoDoacaoId);
         }
 
         public async Task<List<PedidoDoacao>> ObterPedidosDoacaoPorOng(int ongId)

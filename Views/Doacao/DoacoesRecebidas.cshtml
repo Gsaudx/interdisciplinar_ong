@@ -1,0 +1,116 @@
+@model IEnumerable<Doacao>
+@using Ong.Models
+@{
+    ViewData["Title"] = "Doações Recebidas";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Doações Recebidas</h2>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Resumo por Categoria</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @{
+                        var categorias = Model.GroupBy(d => d.Categoria).Select(g => new { Categoria = g.Key, Quantidade = g.Count() });
+                        foreach (var categoria in categorias)
+                        {
+                            <div class="col-md-3 mb-3">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">@categoria.Categoria</h5>
+                                        <p class="card-text display-4">@categoria.Quantidade</p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Lista de Doações</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Doador</th>
+                                        <th>Categoria</th>
+                                        <th>Descrição</th>
+                                        <th>Pedido</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var doacao in Model.OrderByDescending(d => d.DataDoacao))
+                                    {
+                                        <tr>
+                                            <td>@doacao.DataDoacao.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@doacao.Doador?.Nome</td>
+                                            <td>@doacao.Categoria</td>
+                                            <td>@doacao.Descricao</td>
+                                            <td>
+                                                @if (doacao.PedidoDoacao != null)
+                                                {
+                                                    <a asp-controller="PedidoDoacao" asp-action="Detalhes" asp-route-id="@doacao.PedidoDoacaoId">Ver pedido</a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Doação espontânea</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>Sua ONG ainda não recebeu nenhuma doação.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de sucesso
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccessToast('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+    </script>
+}

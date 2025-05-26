@@ -1,0 +1,115 @@
+@model IEnumerable<PedidoDoacao>
+@using Ong.Models
+@{
+    ViewData["Title"] = "Meus Pedidos de Doação";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Meus Pedidos de Doação</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Criar" asp-route-ongId="@ViewBag.OngId" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Novo Pedido
+            </a>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row">
+            @foreach (var pedido in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@pedido.Categoria</h5>
+                            <span class="badge @(pedido.Status == "Aberto" ? "bg-success" : pedido.Status == "Fechado" ? "bg-danger" : "bg-warning")">
+                                @pedido.Status
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@pedido.Descricao</p>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="Detalhes" asp-route-id="@pedido.PedidoDoacaoId" class="btn btn-info btn-sm">
+                                <i class="fa fa-info-circle"></i> Detalhes
+                            </a>                            @if (pedido.Status == "Aberto")
+                            {
+                                <button type="button" class="btn btn-danger btn-sm float-end" 
+                                        onclick="confirmarFechamentoPedido('@pedido.PedidoDoacaoId')">
+                                    <i class="fa fa-times"></i> Fechar Pedido
+                                </button>
+                            }
+                            @if (pedido.Status == "Fechado")
+                            {
+                                <button type="button" class="btn btn-success btn-sm float-end"
+                                        onclick="confirmarReaberturaPedido('@pedido.PedidoDoacaoId')">
+                                    <i class="fa fa-refresh"></i> Reabrir Pedido
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p>Você ainda não possui pedidos de doação cadastrados.</p>
+            <p>Clique em "Novo Pedido" para cadastrar sua primeira solicitação de doação.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Verificar se há mensagens para exibir (vindas do controller)
+        $(document).ready(function() {
+            // Mensagem de sucesso
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showSuccessToast('@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Mensagem de erro
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showErrorToast('@TempData["ErrorMessage"]');
+                </text>
+            }
+        });
+        
+        // Função para confirmar fechamento do pedido
+        function confirmarFechamentoPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar fechamento',
+                'Tem certeza que deseja fechar este pedido? Isso indicará que o pedido não está mais aceitando doações.',
+                'Sim, fechar pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Fechado';
+                }
+            );
+        }
+        
+        // Função para confirmar reabertura do pedido
+        function confirmarReaberturaPedido(pedidoId) {
+            showConfirmationDialog(
+                'Confirmar reabertura',
+                'Tem certeza que deseja reabrir este pedido? Isso indicará que o pedido está novamente aceitando doações.',
+                'Sim, reabrir pedido',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("AtualizarStatus")/' + pedidoId + '?novoStatus=Aberto';
+                }
+            );
+        }
+    </script>
+}
