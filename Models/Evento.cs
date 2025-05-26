@@ -6,7 +6,7 @@ public class Evento
     public required string Nome { get; set; }
     public required string Descricao { get; set; }
     public DateTime Data { get; set; }
-    public int DuracaoMinutos { get; set; } = 120; // Duração padrão de 2 horas
+    public int DuracaoMinutos { get; set; } = 120;
     public required string Localizacao { get; set; }
 
     public int OngId { get; set; }

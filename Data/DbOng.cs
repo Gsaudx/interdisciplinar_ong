@@ -7,7 +7,6 @@ public class DbOng : DbContext
 {
     public DbOng(DbContextOptions options) : base(options) {}     
 
-    // Adicionar DbSet para cada entidade
     public DbSet<Usuario> Usuarios { get; set; }
     public DbSet<Voluntario> Voluntarios { get; set; }
     public DbSet<Doador> Doadores { get; set; }
@@ -22,7 +21,6 @@ public class DbOng : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configurar explicitamente o nome de todas as tabelas
         modelBuilder.Entity<Usuario>().ToTable("Usuario");
         modelBuilder.Entity<Voluntario>().ToTable("Voluntario");
         modelBuilder.Entity<Doador>().ToTable("Doador");

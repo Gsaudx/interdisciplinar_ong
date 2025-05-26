@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Controllers\PedidoDoacaoController.cs
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -24,22 +23,19 @@ namespace Ong.Controllers
             _sessaoService = sessaoService;
         }
 
-        // GET: PedidoDoacao
         public async Task<IActionResult> Index()
         {
             var pedidos = await _pedidoDoacaoService.ObterTodosPedidosDoacao();
             return View(pedidos);
         }
 
-        // GET: PedidoDoacao/Criar
         [Authorize]
         public IActionResult Criar()
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
             var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (tipoUsuario != TipoUsuario.Organizacao)
-            {
+            if (tipoUsuario != TipoUsuario.Organizacao) {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
 
@@ -47,7 +43,6 @@ namespace Ong.Controllers
             return View();
         }
 
-        // POST: PedidoDoacao/Criar
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -56,15 +51,13 @@ namespace Ong.Controllers
             var usuarioId = _sessaoService.ObterUsuarioId();
             var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (tipoUsuario != TipoUsuario.Organizacao || usuarioId != ongId)
-            {
+            if (tipoUsuario != TipoUsuario.Organizacao || usuarioId != ongId) {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
 
             ViewBag.OngId = ongId;
 
-            if (ModelState.IsValid)
-            {
+            if (ModelState.IsValid) {
                 try
                 {
                     await _pedidoDoacaoService.CriarPedidoDoacao(ongId, categoria, descricao);
@@ -81,57 +74,52 @@ namespace Ong.Controllers
             return View();
         }
 
-        // GET: PedidoDoacao/MeusPedidos
         [Authorize]
         public async Task<IActionResult> MeusPedidos()
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
             var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            if (tipoUsuario != TipoUsuario.Organizacao)
-            {
+            if (tipoUsuario != TipoUsuario.Organizacao) {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
 
             ViewBag.OngId = usuarioId;
             var pedidos = await _pedidoDoacaoService.ObterPedidosDoacaoPorOng(usuarioId);
             return View(pedidos);
-        }        // GET: PedidoDoacao/Detalhes
+        }
+        
         public async Task<IActionResult> Detalhes(int id)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
 
-            if (pedido == null)
-            {
+            if (pedido == null) {
                 return NotFound();
             }
 
             var usuarioId = _sessaoService.ObterUsuarioId();
             var tipoUsuario = _sessaoService.ObterTipoUsuario();
 
-            // Adicionar informações do usuário atual para a view
             ViewBag.UsuarioId = usuarioId;
             ViewBag.TipoUsuario = tipoUsuario;
 
             ViewBag.Doacoes = await _doacaoService.ObterDoacoesPorPedido(id);
 
             return View(pedido);
-        }        // GET: PedidoDoacao/AtualizarStatus
+        }
+
         [Authorize(Roles = "Organizacao")]
         public async Task<IActionResult> AtualizarStatus(int id, string novoStatus)
         {
             var pedido = await _pedidoDoacaoService.ObterPedidoDoacaoPorId(id);
 
-            if (pedido == null)
-            {
+            if (pedido == null) {
                 return NotFound();
             }
 
             var usuarioId = _sessaoService.ObterUsuarioId();
 
-            // Verificar se o usuário tem permissão para atualizar o status
-            if (pedido.OngId != usuarioId)
-            {
+            if (pedido.OngId != usuarioId) {
                 return RedirectToAction("AcessoNegado", "Usuario");
             }
             

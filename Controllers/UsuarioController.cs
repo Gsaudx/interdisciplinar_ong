@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Controllers\UsuarioController.cs
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -25,33 +24,26 @@ namespace Ong.Controllers
             _configuration = configuration;
         }
 
-        // GET: Usuario/Cadastro
         public IActionResult Cadastro()
         {
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
             return View();
         }
 
-        // POST: Usuario/Cadastro
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cadastro(Usuario usuario, string senha, string confirmacaoSenha)
         {
-            // Retornar API key para a view em caso de erro
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
 
-            if (senha != confirmacaoSenha)
-            {
+            if (senha != confirmacaoSenha) {
                 ModelState.AddModelError("ConfirmacaoSenha", "As senhas não coincidem.");
                 return View(usuario);
             }
 
             try
             {
-                // Tratar dados específicos com base no tipo de usuário
-                if (usuario.Tipo == TipoUsuario.Doador)
-                {
-                    // Criar um doador
+                if (usuario.Tipo == TipoUsuario.Doador) {
                     var doador = new Doador
                     {
                         Nome = usuario.Nome,
@@ -74,10 +66,7 @@ namespace Ong.Controllers
                     var novoUsuario = await _usuarioService.CriarUsuario(doador, senha);
                     await _sessaoService.LogarUsuario(novoUsuario);
                     return RedirectToAction("Index", "Home");
-                }
-                else if (usuario.Tipo == TipoUsuario.Voluntario)
-                {
-                    // Criar um voluntário
+                } else if (usuario.Tipo == TipoUsuario.Voluntario) {
                     var voluntario = new Voluntario
                     {
                         Nome = usuario.Nome,
@@ -102,10 +91,7 @@ namespace Ong.Controllers
                     var novoUsuario = await _usuarioService.CriarUsuario(voluntario, senha);
                     await _sessaoService.LogarUsuario(novoUsuario);
                     return RedirectToAction("Index", "Home");
-                }
-                else if (usuario.Tipo == TipoUsuario.Organizacao)
-                {
-                    // Criar uma ONG
+                } else if (usuario.Tipo == TipoUsuario.Organizacao) {
                     var ong = new Models.Ong
                     {
                         Nome = usuario.Nome,
@@ -131,10 +117,7 @@ namespace Ong.Controllers
                     var novoUsuario = await _usuarioService.CriarUsuario(ong, senha);
                     await _sessaoService.LogarUsuario(novoUsuario);
                     return RedirectToAction("Index", "Home");
-                }
-                else
-                {
-                    // Criar um usuário genérico se dados específicos não forem fornecidos
+                } else {
                     var novoUsuario = await _usuarioService.CriarUsuario(usuario, senha);
                     await _sessaoService.LogarUsuario(novoUsuario);
                     return RedirectToAction("Index", "Home");
@@ -148,14 +131,12 @@ namespace Ong.Controllers
             }
         }
 
-        // GET: Usuario/Login
         public IActionResult Login(string returnUrl = null)
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
-        // POST: Usuario/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string senha, string returnUrl = null)
@@ -184,14 +165,12 @@ namespace Ong.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Usuario/Logout
         public async Task<IActionResult> Logout()
         {
             await _sessaoService.Logout();
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Usuario/Perfil
         [Authorize]
         public async Task<IActionResult> Perfil()
         {
@@ -204,9 +183,9 @@ namespace Ong.Controllers
             }
 
             return View(usuario);
-        }        // GET: Usuario/Editar
-        [Authorize]
+        }
 
+        [Authorize]
         public async Task<IActionResult> Editar()
         {
             var usuarioId = _sessaoService.ObterUsuarioId();
@@ -252,11 +231,9 @@ namespace Ong.Controllers
             {
                 try
                 {
-                    // Preservar o ID do usuário logado e outros dados que não devem ser alterados
                     usuario.UsuarioId = _sessaoService.ObterUsuarioId();
                     usuario.Tipo = _sessaoService.ObterTipoUsuario();
 
-                    // Tratar dados específicos com base no tipo de usuário
                     if (usuario.Tipo == TipoUsuario.Doador)
                     {
                         var doador = new Doador
@@ -278,7 +255,6 @@ namespace Ong.Controllers
                             Cpf = Request.Form.ContainsKey("Cpf") ? Request.Form["Cpf"].ToString() : string.Empty
                         };
 
-                        // Análise segura de DataNascimento
                         if (Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]))
                         {
                             if (DateTime.TryParse(Request.Form["DataNascimento"], out DateTime dataNasc))
@@ -289,7 +265,6 @@ namespace Ong.Controllers
 
                         await _usuarioService.AtualizarUsuario(doador);
 
-                        // Obter o usuário atualizado para exibir na view
                         var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
                         return RedirectToAction("Perfil");
                     }
@@ -316,7 +291,6 @@ namespace Ong.Controllers
                             Disponibilidade = Request.Form.ContainsKey("Disponibilidade") ? Request.Form["Disponibilidade"].ToString() : string.Empty
                         };
 
-                        // Análise segura de DataNascimento
                         if (Request.Form.ContainsKey("DataNascimento") && !string.IsNullOrEmpty(Request.Form["DataNascimento"]))
                         {
                             if (DateTime.TryParse(Request.Form["DataNascimento"], out DateTime dataNasc))
@@ -327,7 +301,6 @@ namespace Ong.Controllers
 
                         await _usuarioService.AtualizarUsuario(voluntario);
 
-                        // Obter o usuário atualizado para exibir na view
                         var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
                         return RedirectToAction("Perfil");
                     }
@@ -355,7 +328,6 @@ namespace Ong.Controllers
                             Descricao = Request.Form.ContainsKey("Descricao") ? Request.Form["Descricao"].ToString() : string.Empty
                         };
 
-                        // Análise segura de DataFundacao
                         if (Request.Form.ContainsKey("DataFundacao") && !string.IsNullOrEmpty(Request.Form["DataFundacao"]))
                         {
                             if (DateTime.TryParse(Request.Form["DataFundacao"], out DateTime dataFund))
@@ -366,13 +338,11 @@ namespace Ong.Controllers
 
                         await _usuarioService.AtualizarUsuario(ong);
 
-                        // Obter o usuário atualizado para exibir na view
                         var usuarioAtualizado = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
                         return RedirectToAction("Perfil");
                     }
                     else
                     {
-                        // Atualizar um usuário genérico se dados específicos não forem fornecidos
                         await _usuarioService.AtualizarUsuario(usuario);
                         return RedirectToAction("Perfil");
                     }
@@ -383,18 +353,15 @@ namespace Ong.Controllers
                 }
             }
 
-            // Se chegou aqui, houve um erro - recarregar a view com o usuário completo para manter os dados específicos
             var usuarioCompleto = await _usuarioService.ObterUsuarioPorId(usuario.UsuarioId);
             return View(usuarioCompleto);
         }
 
-        // GET: Usuario/AcessoNegado
         public IActionResult AcessoNegado()
         {
             return View();
         }
 
-        // GET: Usuario/BuscarOngsProximas
         public async Task<IActionResult> BuscarOngsProximas(double latitude, double longitude, double raioKm = 10)
         {
             var ongs = await _usuarioService.ObterONGsProximas(latitude, longitude, raioKm);

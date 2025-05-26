@@ -1,4 +1,3 @@
-// filepath: c:\Programming\interdisciplinar_ong\Services\EventoService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +17,6 @@ namespace Ong.Services
             _context = context;
         }        public async Task<Evento> CriarEvento(int ongId, string nome, string descricao, DateTime data, string localizacao, int duracaoMinutos = 120)
         {
-            // Verificar se a ONG existe
             var ong = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == ongId && u.Tipo == TipoUsuario.Organizacao);
             
@@ -27,7 +25,6 @@ namespace Ong.Services
                 throw new Exception("ONG não encontrada ou usuário não é uma organização.");
             }
 
-            // Criar o evento
             var evento = new Evento
             {
                 OngId = ongId,
@@ -88,7 +85,6 @@ namespace Ong.Services
 
         public async Task<VoluntarioEvento> InscreverVoluntarioEmEvento(int voluntarioId, int eventoId)
         {
-            // Verificar se o voluntário existe
             var voluntario = await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.UsuarioId == voluntarioId && u.Tipo == TipoUsuario.Voluntario);
             
@@ -97,7 +93,6 @@ namespace Ong.Services
                 throw new Exception("Voluntário não encontrado ou usuário não é um voluntário.");
             }
 
-            // Verificar se o evento existe
             var evento = await _context.Eventos.FindAsync(eventoId);
             
             if (evento == null)
@@ -105,7 +100,6 @@ namespace Ong.Services
                 throw new Exception("Evento não encontrado.");
             }
 
-            // Verificar se o voluntário já está inscrito no evento
             var inscricaoExistente = await _context.VoluntarioEventos
                 .FirstOrDefaultAsync(ve => ve.VoluntarioId == voluntarioId && ve.EventoId == eventoId);
             
@@ -114,14 +108,12 @@ namespace Ong.Services
                 throw new Exception("Voluntário já está inscrito neste evento.");
             }
 
-            // Verifica se há conflito de horário entre eventos
             var conflitoHorario = await VerificarConflitoHorario(voluntarioId, eventoId);
             if (conflitoHorario)
             {
                 throw new Exception("Conflito de horário: o voluntário já está inscrito em outro evento no mesmo horário.");
             }
 
-            // Criar a inscrição
             var voluntarioEvento = new VoluntarioEvento
             {
                 VoluntarioId = voluntarioId,
@@ -171,44 +163,36 @@ namespace Ong.Services
                 .ToListAsync();
         }
 
-        // Verifica se há conflito de horário entre eventos
         private async Task<bool> VerificarConflitoHorario(int voluntarioId, int eventoId)
         {
-            // Obter o evento para o qual o voluntário está tentando se inscrever
             var novoEvento = await _context.Eventos.FindAsync(eventoId);
             if (novoEvento == null)
                 return false;
 
-            // Calcular horário de início e término do novo evento
             var novoEventoInicio = novoEvento.Data;
             var novoEventoTermino = novoEvento.Data.AddMinutes(novoEvento.DuracaoMinutos);
 
-            // Obter todos os eventos em que o voluntário já está inscrito
             var eventosInscritos = await _context.VoluntarioEventos
                 .Where(ve => ve.VoluntarioId == voluntarioId && ve.Status != "Cancelado")
                 .Include(ve => ve.Evento)
                 .Select(ve => ve.Evento)
                 .ToListAsync();
 
-            // Verificar se há sobreposição de horários
             foreach (var eventoExistente in eventosInscritos)
             {
                 var eventoExistenteInicio = eventoExistente.Data;
                 var eventoExistenteTermino = eventoExistente.Data.AddMinutes(eventoExistente.DuracaoMinutos);
 
-                // Verificar sobreposição de horários
-                // (Novo evento começa durante o existente OU termina durante o existente)
-                // OU (Evento existente começa durante o novo OU termina durante o novo)
                 if ((novoEventoInicio < eventoExistenteTermino && novoEventoInicio >= eventoExistenteInicio) ||
                     (novoEventoTermino <= eventoExistenteTermino && novoEventoTermino > eventoExistenteInicio) ||
                     (eventoExistenteInicio < novoEventoTermino && eventoExistenteInicio >= novoEventoInicio) ||
                     (eventoExistenteTermino <= novoEventoTermino && eventoExistenteTermino > novoEventoInicio))
                 {
-                    return true; // Há conflito de horário
+                    return true;
                 }
             }
 
-            return false; // Não há conflito de horário
+            return false;
         }
     }
 }

@@ -41,7 +41,6 @@ namespace Ong.Services
                         ExpiresUtc = DateTime.UtcNow.AddDays(7)
                     });
                     
-                // Também armazena na sessão
                 _httpContextAccessor.HttpContext.Session.SetInt32("UsuarioId", usuario.UsuarioId);
                 _httpContextAccessor.HttpContext.Session.SetInt32("TipoUsuario", (int)usuario.Tipo);
             }
@@ -51,7 +50,6 @@ namespace Ong.Services
             {
                 await _httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 
-                // Limpar também a sessão
                 _httpContextAccessor.HttpContext.Session.Remove("UsuarioId");
                 _httpContextAccessor.HttpContext.Session.Remove("TipoUsuario");
             }

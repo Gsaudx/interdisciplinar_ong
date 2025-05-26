@@ -27,16 +27,9 @@ namespace Ong.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Carregar ONGs para o mapa
             ViewBag.Ongs = await _usuarioService.ObterUsuariosPorTipo(TipoUsuario.Organizacao);
-            
-            // Carregar próximos eventos
             ViewBag.ProximosEventos = await _eventoService.ObterEventosFuturos();
-            
-            // Carregar pedidos de doação abertos
             ViewBag.PedidosDoacaoAbertos = await _pedidoDoacaoService.ObterPedidosDoacaoPorStatus("Aberto");
-            
-            // Passar a API key do Google Maps para a view
             ViewBag.GoogleMapsApiKey = _configuration["GoogleMaps:ApiKey"];
             
             return View();

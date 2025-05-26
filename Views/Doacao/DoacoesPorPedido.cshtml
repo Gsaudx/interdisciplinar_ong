@@ -86,9 +86,7 @@
 
 @section Scripts {
     <script>
-        // Verificar se há mensagens para exibir (vindas do controller)
         $(document).ready(function() {
-            // Mensagem de sucesso
             @if (TempData["SuccessMessage"] != null)
             {
                 <text>
@@ -96,7 +94,6 @@
                 </text>
             }
             
-            // Mensagem de erro
             @if (TempData["ErrorMessage"] != null)
             {
                 <text>
