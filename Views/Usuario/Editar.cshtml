@@ -17,79 +17,152 @@
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="Tipo" />
                         
-                        <h5>Informações Básicas</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Nome" class="control-label">Nome</label>
-                                    <input asp-for="Nome" class="form-control" required />
-                                    <span asp-validation-for="Nome" class="text-danger"></span>
-                                </div>
+                        <div class="form-group mb-3">
+                            <label asp-for="Nome" class="control-label">Nome Completo *</label>
+                            <div class="input-group">
+                                <input asp-for="Nome" class="form-control" id="nome" required />
+                                <span class="input-group-text validation-icon d-none">
+                                    <i class="fas fa-check text-success" id="nome-success"></i>
+                                    <i class="fas fa-times text-danger" id="nome-error"></i>
+                                </span>
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label asp-for="EmailPrincipal" class="control-label">Email</label>
-                                    <input asp-for="EmailPrincipal" class="form-control" required />
-                                    <span asp-validation-for="EmailPrincipal" class="text-danger"></span>
-                                </div>
-                            </div>
+                            <small class="form-text text-muted">Digite seu nome completo</small>
+                            <div class="invalid-feedback" id="nome-feedback"></div>
+                            <span asp-validation-for="Nome" class="text-danger"></span>
                         </div>
                         
                         <div class="form-group mb-3">
-                            <label asp-for="Telefone" class="control-label">Telefone</label>
-                            <input asp-for="Telefone" class="form-control" required />
+                            <label asp-for="EmailPrincipal" class="control-label">E-mail *</label>
+                            <div class="input-group">
+                                <input asp-for="EmailPrincipal" class="form-control" type="email" autocomplete="email" id="email" required />
+                                <span class="input-group-text validation-icon d-none">
+                                    <i class="fas fa-check text-success" id="email-success"></i>
+                                    <i class="fas fa-times text-danger" id="email-error"></i>
+                                </span>
+                            </div>
+                            <small class="form-text text-muted">Digite um e-mail válido</small>
+                            <div class="invalid-feedback" id="email-feedback"></div>
+                            <span asp-validation-for="EmailPrincipal" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Telefone" class="control-label">Telefone *</label>
+                            <div class="input-group">
+                                <input asp-for="Telefone" class="form-control" id="telefone" required />
+                                <span class="input-group-text validation-icon d-none">
+                                    <i class="fas fa-check text-success" id="telefone-success"></i>
+                                    <i class="fas fa-times text-danger" id="telefone-error"></i>
+                                </span>
+                            </div>
+                            <small class="form-text text-muted">Digite seu telefone ou celular</small>
+                            <div class="invalid-feedback" id="telefone-feedback"></div>
                             <span asp-validation-for="Telefone" class="text-danger"></span>
                         </div>
                         
                         <h5 class="mt-4">Endereço</h5>
-                        <div class="form-group mb-3">
-                            <label asp-for="Cep" class="control-label">CEP</label>
-                            <input asp-for="Cep" class="form-control" id="cep" required />
-                            <span asp-validation-for="Cep" class="text-danger"></span>
-                        </div>
                         
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label asp-for="Logradouro" class="control-label">Logradouro</label>
-                                    <input asp-for="Logradouro" class="form-control" id="logradouro" required />
+                                    <label asp-for="Cep" class="control-label">CEP *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Cep" class="form-control" id="cep" required />
+                                        <span class="input-group-text d-none" id="cepLoading">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                        </span>
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="cep-success"></i>
+                                            <i class="fas fa-times text-danger" id="cep-error"></i>
+                                        </span>
+                                    </div>
+                                    <small class="form-text text-muted">Digite o CEP para buscar o endereço automaticamente</small>
+                                    <div class="invalid-feedback" id="cep-feedback"></div>
+                                    <span asp-validation-for="Cep" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Logradouro" class="control-label">Logradouro *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Logradouro" class="form-control" id="logradouro" required />
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="logradouro-success"></i>
+                                            <i class="fas fa-times text-danger" id="logradouro-error"></i>
+                                        </span>
+                                    </div>
+                                    <small class="form-text text-muted">Rua, avenida, etc.</small>
+                                    <div class="invalid-feedback" id="logradouro-feedback"></div>
                                     <span asp-validation-for="Logradouro" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group mb-3">
-                                    <label asp-for="Numero" class="control-label">Número</label>
-                                    <input asp-for="Numero" class="form-control" id="numero" required />
-                                    <span asp-validation-for="Numero" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group mb-3">
-                            <label asp-for="Complemento" class="control-label">Complemento</label>
-                            <input asp-for="Complemento" class="form-control" id="complemento" />
-                            <span asp-validation-for="Complemento" class="text-danger"></span>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label asp-for="Bairro" class="control-label">Bairro</label>
-                                    <input asp-for="Bairro" class="form-control" id="bairro" required />
+                                    <label asp-for="Numero" class="control-label">Número *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Numero" class="form-control" id="numero" required />
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="numero-success"></i>
+                                            <i class="fas fa-times text-danger" id="numero-error"></i>
+                                        </span>
+                                    </div>
+                                    <small class="form-text text-muted">Número da residência</small>
+                                    <div class="invalid-feedback" id="numero-feedback"></div>
+                                    <span asp-validation-for="Numero" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Complemento" class="control-label">Complemento</label>
+                                    <input asp-for="Complemento" class="form-control" id="complemento" />
+                                    <small class="form-text text-muted">Apartamento, bloco, etc. (opcional)</small>
+                                    <span asp-validation-for="Complemento" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Bairro" class="control-label">Bairro *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Bairro" class="form-control" id="bairro" required />
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="bairro-success"></i>
+                                            <i class="fas fa-times text-danger" id="bairro-error"></i>
+                                        </span>
+                                    </div>
+                                    <div class="invalid-feedback" id="bairro-feedback"></div>
                                     <span asp-validation-for="Bairro" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label asp-for="Cidade" class="control-label">Cidade</label>
-                                    <input asp-for="Cidade" class="form-control" id="cidade" required />
+                                    <label asp-for="Cidade" class="control-label">Cidade *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Cidade" class="form-control" id="cidade" required />
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="cidade-success"></i>
+                                            <i class="fas fa-times text-danger" id="cidade-error"></i>
+                                        </span>
+                                    </div>
+                                    <div class="invalid-feedback" id="cidade-feedback"></div>
                                     <span asp-validation-for="Cidade" class="text-danger"></span>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="form-group mb-3">
-                                    <label asp-for="Estado" class="control-label">Estado</label>
-                                    <input asp-for="Estado" class="form-control" id="estado" required />
+                                    <label asp-for="Estado" class="control-label">Estado *</label>
+                                    <div class="input-group">
+                                        <input asp-for="Estado" class="form-control" id="estado" required />
+                                        <span class="input-group-text validation-icon d-none">
+                                            <i class="fas fa-check text-success" id="estado-success"></i>
+                                            <i class="fas fa-times text-danger" id="estado-error"></i>
+                                        </span>
+                                    </div>
+                                    <div class="invalid-feedback" id="estado-feedback"></div>
                                     <span asp-validation-for="Estado" class="text-danger"></span>
                                 </div>
                             </div>
@@ -104,104 +177,144 @@
                             <label asp-for="Longitude" class="control-label">Longitude</label>
                             <input asp-for="Longitude" class="form-control" id="longitude" />
                         </div>
-                          <!-- Campos específicos de Doador -->
+                        
                         @if (Model.Tipo == TipoUsuario.Doador)
                         {
                             var doador = Model as Doador;
-                            <div id="camposDoador">
-                                <h5 class="mt-4">Informações de Doador</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="Cpf" class="control-label">CPF</label>
+                            <h5 class="mt-4">Informações de Doador</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Cpf" class="control-label">CPF *</label>
+                                        <div class="input-group">
                                             <input id="Cpf" name="Cpf" class="form-control" value="@(doador?.Cpf ?? string.Empty)" />
+                                            <span class="input-group-text validation-icon d-none">
+                                                <i class="fas fa-check text-success" id="Cpf-success"></i>
+                                                <i class="fas fa-times text-danger" id="Cpf-error"></i>
+                                            </span>
                                         </div>
+                                        <small class="form-text text-muted">Digite apenas números ou no formato 000.000.000-00</small>
+                                        <div class="invalid-feedback" id="Cpf-feedback"></div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="DataNascimento" class="control-label">Data de Nascimento</label>
-                                            <input id="DataNascimento" name="DataNascimento" class="form-control" type="date" value="@(doador?.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty)" />
-                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataNascimento" class="control-label">Data de Nascimento</label>
+                                        <input id="DataNascimento" name="DataNascimento" class="form-control" type="date" value="@(doador?.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty)" />
                                     </div>
                                 </div>
                             </div>
                         }
-                          <!-- Campos específicos de Voluntário -->
+                        
                         @if (Model.Tipo == TipoUsuario.Voluntario)
                         {
                             var voluntario = Model as Voluntario;
-                            <div id="camposVoluntario">
-                                <h5 class="mt-4">Informações de Voluntário</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="Cpf" class="control-label">CPF</label>
-                                            <input id="Cpf" name="Cpf" class="form-control" value="@(voluntario?.Cpf ?? string.Empty)" />
+                            <h5 class="mt-4">Informações de Voluntário</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="CpfVoluntario" class="control-label">CPF *</label>
+                                        <div class="input-group">
+                                            <input id="CpfVoluntario" name="Cpf" class="form-control" value="@(voluntario?.Cpf ?? string.Empty)" />
+                                            <span class="input-group-text validation-icon d-none">
+                                                <i class="fas fa-check text-success" id="CpfVoluntario-success"></i>
+                                                <i class="fas fa-times text-danger" id="CpfVoluntario-error"></i>
+                                            </span>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="DataNascimento" class="control-label">Data de Nascimento</label>
-                                            <input id="DataNascimento" name="DataNascimento" class="form-control" type="date" value="@(voluntario?.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty)" />
-                                        </div>
+                                        <small class="form-text text-muted">Digite apenas números ou no formato 000.000.000-00</small>
+                                        <div class="invalid-feedback" id="CpfVoluntario-feedback"></div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="Profissao" class="control-label">Profissão</label>
-                                            <input id="Profissao" name="Profissao" class="form-control" value="@(voluntario?.Profissao ?? string.Empty)" />
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="Disponibilidade" class="control-label">Disponibilidade</label>
-                                            <input id="Disponibilidade" name="Disponibilidade" class="form-control" placeholder="Ex: Finais de semana, noites..." value="@(voluntario?.Disponibilidade ?? string.Empty)" />
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataNascimentoVoluntario" class="control-label">Data de Nascimento</label>
+                                        <input id="DataNascimentoVoluntario" name="DataNascimento" class="form-control" type="date" value="@(voluntario?.DataNascimento?.ToString("yyyy-MM-dd") ?? string.Empty)" />
                                     </div>
                                 </div>
                             </div>
-                        }                          <!-- Campos específicos de ONG -->                         
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Profissao" class="control-label">Profissão</label>
+                                        <input id="Profissao" name="Profissao" class="form-control" value="@(voluntario?.Profissao ?? string.Empty)" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Disponibilidade" class="control-label">Disponibilidade</label>
+                                        <input id="Disponibilidade" name="Disponibilidade" class="form-control" placeholder="Ex: Finais de semana, noites..." value="@(voluntario?.Disponibilidade ?? string.Empty)" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        
                         @if (Model.Tipo == TipoUsuario.Organizacao)
                         {
-                            // Usar tipo completo Ong.Models.Ong para evitar problemas de namespace
                             var ong = Model as Ong;
-                            <div id="camposONG">
-                                <h5 class="mt-4">Informações da ONG</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="Cnpj" class="control-label">CNPJ</label>
+                            <h5 class="mt-4">Informações da ONG</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="Cnpj" class="control-label">CNPJ *</label>
+                                        <div class="input-group">
                                             <input id="Cnpj" name="Cnpj" class="form-control" value="@(ong?.Cnpj ?? string.Empty)" />
+                                            <span class="input-group-text validation-icon d-none">
+                                                <i class="fas fa-check text-success" id="cnpj-success"></i>
+                                                <i class="fas fa-times text-danger" id="cnpj-error"></i>
+                                            </span>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-3">
-                                            <label for="DataFundacao" class="control-label">Data de Fundação</label>
-                                            <input id="DataFundacao" name="DataFundacao" class="form-control" type="date" value="@(ong?.DataFundacao?.ToString("yyyy-MM-dd") ?? string.Empty)" />
-                                        </div>
+                                        <small class="form-text text-muted">Digite apenas números ou no formato 00.000.000/0000-00</small>
+                                        <div class="invalid-feedback" id="cnpj-feedback"></div>
                                     </div>
                                 </div>
-                                <div class="form-group mb-3">
-                                    <label for="RazaoSocial" class="control-label">Razão Social</label>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="DataFundacao" class="control-label">Data de Fundação</label>
+                                        <input id="DataFundacao" name="DataFundacao" class="form-control" type="date" value="@(ong?.DataFundacao?.ToString("yyyy-MM-dd") ?? string.Empty)" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="RazaoSocial" class="control-label">Razão Social *</label>
+                                <div class="input-group">
                                     <input id="RazaoSocial" name="RazaoSocial" class="form-control" value="@(ong?.RazaoSocial ?? string.Empty)" />
+                                    <span class="input-group-text validation-icon d-none">
+                                        <i class="fas fa-check text-success" id="razaoSocial-success"></i>
+                                        <i class="fas fa-times text-danger" id="razaoSocial-error"></i>
+                                    </span>
                                 </div>
-                                <div class="form-group mb-3">
-                                    <label for="NomeFantasia" class="control-label">Nome Fantasia</label>
-                                    <input id="NomeFantasia" name="NomeFantasia" class="form-control" value="@(ong?.NomeFantasia ?? string.Empty)" />
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="Descricao" class="control-label">Descrição</label>
-                                    <textarea id="Descricao" name="Descricao" class="form-control" rows="3">@(ong?.Descricao ?? string.Empty)</textarea>
-                                </div>
-                            </div>                        }
+                                <small class="form-text text-muted">Nome oficial da organização</small>
+                                <div class="invalid-feedback" id="razaoSocial-feedback"></div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="NomeFantasia" class="control-label">Nome Fantasia</label>
+                                <input id="NomeFantasia" name="NomeFantasia" class="form-control" value="@(ong?.NomeFantasia ?? string.Empty)" />
+                                <small class="form-text text-muted">Nome pelo qual a organização é conhecida (opcional)</small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="Descricao" class="control-label">Descrição *</label>
+                                <textarea id="Descricao" name="Descricao" class="form-control" rows="3">@(ong?.Descricao ?? string.Empty)</textarea>
+                                <small class="form-text text-muted">Descreva os objetivos e atividades da organização</small>
+                                <div class="invalid-feedback" id="descricao-feedback"></div>
+                            </div>
+                        }
                         
                         <hr class="my-4" />
                         <h5 class="mb-3">Confirmação de Segurança</h5>
                         <div class="form-group mb-4">
-                            <label for="Senha" class="control-label">Senha Atual</label>
-                            <input type="password" id="Senha" name="Senha" class="form-control" required />
-                            <small class="form-text text-muted">Digite sua senha atual para confirmar as alterações.</small>
+                            <label for="senhaAtual" class="control-label">Senha Atual *</label>
+                            <div class="input-group">
+                                <input type="password" id="senhaAtual" name="Senha" class="form-control" autocomplete="current-password" required />
+                                <button class="btn btn-outline-secondary" type="button" id="toggleSenhaAtual">
+                                    <i class="fas fa-eye" id="iconSenhaAtual"></i>
+                                </button>
+                                <span class="input-group-text validation-icon d-none">
+                                    <i class="fas fa-check text-success" id="senhaAtual-success"></i>
+                                    <i class="fas fa-times text-danger" id="senhaAtual-error"></i>
+                                </span>
+                            </div>
+                            <small class="form-text text-muted">Digite sua senha atual para confirmar as alterações</small>
+                            <div class="invalid-feedback" id="senhaAtual-feedback"></div>
                         </div>
                         
                         <div class="form-group mt-4">
@@ -215,70 +328,601 @@
     </div>
 </div>
 
+<!-- Container para notificações -->
+<div class="toast-container" id="toastContainer"></div>
+
 @section Scripts {
     <script src="https://maps.googleapis.com/maps/api/js?key=@ViewBag.GoogleMapsApiKey&libraries=places" async defer></script>
+    <script src="~/lib/imask/imask.min.js"></script>
+    
+    <style>
+        .validation-icon {
+            width: 45px;
+            justify-content: center;
+        }
+        
+        .form-control {
+            background-image: none !important;
+            background-position: none !important;
+            background-repeat: no-repeat !important;
+            background-size: 0 !important;
+        }
+        
+        .input-group .form-control {
+            background-image: none !important;
+        }
+        
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+        
+        .invalid-feedback.show {
+            display: block;
+        }
+        
+        .form-control.is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
+        .btn-outline-secondary {
+            border-color: #6c757d;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        }
+        
+        .form-control[style*="border-color: rgb(40, 167, 69)"]:focus,
+        .form-control[style*="border-color: #28a745"]:focus {
+            box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+        }
+        
+        .form-control[style*="border-color: rgb(220, 53, 69)"]:focus,
+        .form-control[style*="border-color: #dc3545"]:focus {
+            box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .custom-toast {
+            min-width: 300px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .toast-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        
+        .toast-error {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .toast-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        
+        .toast-header {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .toast-body {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .toast-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            padding: 0 5px;
+        }
+          .toast-close:hover {
+            opacity: 1;
+        }
+        
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @@keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+    
     <script>
         $(document).ready(function() {
-            // Inicializar um mapa oculto para geocodificação
-            const map = new google.maps.Map(document.createElement('div'));
-            const geocoder = new google.maps.Geocoder();
-
-            // Função para geocodificar um endereço
-            function geocodeAddress(address) {
-                geocoder.geocode({ 'address': address }, function(results, status) {
-                    if (status === 'OK') {
-                        const location = results[0].geometry.location;
-                        $('#latitude').val(location.lat());
-                        $('#longitude').val(location.lng());
-                        console.log("Coordenadas atualizadas: ", location.lat(), location.lng());
+            let telefoneMask, cepMask, cpfMask, cpfVoluntarioMask, cnpjMask;
+            
+            initMasks();
+            initValidations();
+            setupCepSearch();
+            setupPasswordToggle();
+            
+            function showToast(message, type = 'success', title = '') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                toast.className = `custom-toast toast-${type}`;
+                
+                const toastId = 'toast-' + Date.now();
+                toast.id = toastId;
+                
+                const defaultTitles = {
+                    success: 'Sucesso!',
+                    error: 'Erro!',
+                    warning: 'Atenção!'
+                };
+                
+                const toastTitle = title || defaultTitles[type] || 'Notificação';
+                
+                toast.innerHTML = `
+                    <div class="toast-header">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'exclamation-triangle'}"></i>
+                        <span style="margin-left: 8px;">${toastTitle}</span>
+                        <button class="toast-close" onclick="closeToast('${toastId}')">&times;</button>
+                    </div>
+                    <div class="toast-body">${message}</div>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    closeToast(toastId);
+                }, 5000);
+            }
+            
+            function closeToast(toastId) {
+                const toast = document.getElementById(toastId);
+                if (toast) {
+                    toast.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }
+            
+            window.closeToast = closeToast;
+            
+            function initMasks() {
+                if (document.getElementById('telefone')) {
+                    telefoneMask = IMask(document.getElementById('telefone'), {
+                        mask: [
+                            { mask: '(00) 0000-0000', startsWith: '' },
+                            { mask: '(00) 00000-0000', startsWith: '' }
+                        ]
+                    });
+                }
+                
+                if (document.getElementById('cep')) {
+                    cepMask = IMask(document.getElementById('cep'), {
+                        mask: '00000-000'
+                    });
+                }
+                
+                if (document.getElementById('Cpf')) {
+                    cpfMask = IMask(document.getElementById('Cpf'), {
+                        mask: '000.000.000-00'
+                    });
+                }
+                
+                if (document.getElementById('CpfVoluntario')) {
+                    cpfVoluntarioMask = IMask(document.getElementById('CpfVoluntario'), {
+                        mask: '000.000.000-00'
+                    });
+                }
+                
+                if (document.getElementById('Cnpj')) {
+                    cnpjMask = IMask(document.getElementById('Cnpj'), {
+                        mask: '00.000.000/0000-00'
+                    });
+                }
+            }
+            
+            function initValidations() {
+                $('#nome').on('input blur', function() {
+                    validateName();
+                });
+                
+                $('#email').on('input blur', function() {
+                    validateEmail();
+                });
+                
+                $('#telefone').on('input blur', function() {
+                    validatePhone();
+                });
+                
+                $('#cep').on('input blur', function() {
+                    validateCep();
+                });
+                
+                $('#logradouro').on('input blur', function() {
+                    validateField('logradouro', 'Logradouro é obrigatório');
+                });
+                
+                $('#numero').on('input blur', function() {
+                    validateField('numero', 'Número é obrigatório');
+                });
+                
+                $('#bairro').on('input blur', function() {
+                    validateField('bairro', 'Bairro é obrigatório');
+                });
+                
+                $('#cidade').on('input blur', function() {
+                    validateField('cidade', 'Cidade é obrigatória');
+                });
+                
+                $('#estado').on('input blur', function() {
+                    validateField('estado', 'Estado é obrigatório');
+                });
+                
+                $('#Cpf').on('input blur', function() {
+                    validateCpf();
+                });
+                
+                $('#CpfVoluntario').on('input blur', function() {
+                    validateCpfVoluntario();
+                });
+                
+                $('#Cnpj').on('input blur', function() {
+                    validateCnpj();
+                });
+                
+                $('#RazaoSocial').on('input blur', function() {
+                    validateField('razaoSocial', 'Razão Social é obrigatória');
+                });
+                
+                $('#Descricao').on('input blur', function() {
+                    validateField('descricao', 'Descrição é obrigatória');
+                });
+                
+                $('#senhaAtual').on('input blur', function() {
+                    validateSenhaAtual();
+                });
+            }
+            
+            function validateName() {
+                const value = $('#nome').val().trim();
+                const isValid = value.length >= 2;
+                const message = isValid ? '' : 'Nome deve ter pelo menos 2 caracteres';
+                
+                updateFieldValidation('nome', isValid, message);
+                return isValid;
+            }
+            
+            function validateEmail() {
+                const value = $('#email').val().trim();
+                const atCode = 64;
+                const dotCode = 46;
+                const hasAt = value.indexOf(String.fromCharCode(atCode)) > 0;
+                const hasDot = value.indexOf(String.fromCharCode(dotCode)) > value.indexOf(String.fromCharCode(atCode));
+                const isValid = value.length > 5 && hasAt && hasDot;
+                const message = isValid ? '' : 'Digite um e-mail válido';
+                
+                updateFieldValidation('email', isValid, message);
+                return isValid;
+            }
+            
+            function validatePhone() {
+                if (!telefoneMask) return true;
+                const unmasked = telefoneMask.unmaskedValue;
+                const isValid = unmasked.length >= 10;
+                const message = isValid ? '' : 'Digite um telefone válido';
+                
+                updateFieldValidation('telefone', isValid, message);
+                return isValid;
+            }
+            
+            function validateCep() {
+                if (!cepMask) return true;
+                const unmasked = cepMask.unmaskedValue;
+                const isValid = unmasked.length === 8;
+                const message = isValid ? '' : 'CEP deve ter 8 dígitos';
+                
+                updateFieldValidation('cep', isValid, message);
+                return isValid;
+            }
+            
+            function validateCpf() {
+                if (!cpfMask) return true;
+                const unmasked = cpfMask.unmaskedValue;
+                const isValid = unmasked.length === 11 && isValidCPF(unmasked);
+                const message = isValid ? '' : 'CPF inválido';
+                
+                updateFieldValidation('Cpf', isValid, message);
+                return isValid;
+            }
+            
+            function validateCpfVoluntario() {
+                if (!cpfVoluntarioMask) return true;
+                const unmasked = cpfVoluntarioMask.unmaskedValue;
+                const isValid = unmasked.length === 11 && isValidCPF(unmasked);
+                const message = isValid ? '' : 'CPF inválido';
+                
+                updateFieldValidation('CpfVoluntario', isValid, message);
+                return isValid;
+            }
+            
+            function validateCnpj() {
+                if (!cnpjMask) return true;
+                const unmasked = cnpjMask.unmaskedValue;
+                const isValid = unmasked.length === 14 && isValidCNPJ(unmasked);
+                const message = isValid ? '' : 'CNPJ inválido';
+                
+                updateFieldValidation('cnpj', isValid, message);
+                return isValid;
+            }
+            
+            function validateSenhaAtual() {
+                const value = $('#senhaAtual').val();
+                const isValid = value.length >= 6;
+                const message = isValid ? '' : 'Digite sua senha atual';
+                
+                updateFieldValidation('senhaAtual', isValid, message);
+                return isValid;
+            }
+            
+            function validateField(fieldId, errorMessage) {
+                const field = $('#' + fieldId.replace(/([A-Z])/g, (match, p1, offset) => offset > 0 ? match.toLowerCase() : match));
+                const value = field.val().trim();
+                const isValid = value.length > 0;
+                const message = isValid ? '' : errorMessage;
+                
+                updateFieldValidation(fieldId, isValid, message);
+                return isValid;
+            }
+            
+            function updateFieldValidation(fieldId, isValid, message) {
+                const actualFieldId = fieldId.replace(/([A-Z])/g, (match, p1, offset) => offset > 0 ? match.toLowerCase() : match);
+                const field = $('#' + actualFieldId);
+                const successIcon = $('#' + fieldId + '-success');
+                const errorIcon = $('#' + fieldId + '-error');
+                const feedback = $('#' + fieldId + '-feedback');
+                const validationIcon = field.siblings('.input-group-text.validation-icon');
+                
+                if (field.length === 0) {
+                    console.warn('Campo não encontrado:', actualFieldId);
+                    return;
+                }
+                
+                field.removeClass('is-valid is-invalid');
+                field.css('border-color', '');
+                successIcon.hide();
+                errorIcon.hide();
+                feedback.removeClass('show').text('');
+                validationIcon.addClass('d-none');
+                
+                const fieldValue = field.val();
+                if (fieldValue && fieldValue.trim() !== '') {
+                    if (isValid) {
+                        field.css('border-color', '#28a745');
+                        successIcon.show();
+                        validationIcon.removeClass('d-none');
                     } else {
-                        console.log("Geocodificação falhou: " + status);
+                        field.css('border-color', '#dc3545');
+                        errorIcon.show();
+                        feedback.text(message).addClass('show');
+                        validationIcon.removeClass('d-none');
+                    }
+                } else {
+                    field.css('border-color', '');
+                }
+            }
+            
+            function isValidCPF(cpf) {
+                if (cpf.length !== 11) return false;
+                if (cpf.split('').every(digit => digit === cpf[0])) return false;
+                return true;
+            }
+            
+            function isValidCNPJ(cnpj) {
+                if (cnpj.length !== 14) return false;
+                
+                const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+                const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+                
+                let sum = 0;
+                for (let i = 0; i < 12; i++) {
+                    sum += parseInt(cnpj.charAt(i)) * weights1[i];
+                }
+                let digit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+                if (digit !== parseInt(cnpj.charAt(12))) return false;
+                
+                sum = 0;
+                for (let i = 0; i < 13; i++) {
+                    sum += parseInt(cnpj.charAt(i)) * weights2[i];
+                }
+                digit = sum % 11 < 2 ? 0 : 11 - (sum % 11);
+                return digit === parseInt(cnpj.charAt(13));
+            }
+            
+            function setupCepSearch() {
+                $('#cep').blur(function() {
+                    if (!cepMask) return;
+                    const cep = cepMask.unmaskedValue;
+                    
+                    if (cep.length === 8) {
+                        $('#cepLoading').removeClass('d-none');
+                        $.getJSON('https://viacep.com.br/ws/' + cep + '/json/', function(data) {
+                            $('#cepLoading').addClass('d-none');
+                            
+                            if (!data.erro) {
+                                $('#logradouro').val(data.logradouro);
+                                $('#bairro').val(data.bairro);
+                                $('#cidade').val(data.localidade);
+                                $('#estado').val(data.uf);
+                                
+                                validateField('logradouro', 'Logradouro é obrigatório');
+                                validateField('bairro', 'Bairro é obrigatório');
+                                validateField('cidade', 'Cidade é obrigatória');
+                                validateField('estado', 'Estado é obrigatório');
+                                
+                                $('#numero').focus();
+                                
+                                showToast('Endereço encontrado! Complete o número e complemento se necessário.', 'success');
+                                
+                                if ($('#numero').val()) {
+                                    const endereco = data.logradouro + ', ' + $('#numero').val() + ', ' + data.localidade + ', ' + data.uf + ', Brasil';
+                                    geocodeAddress(endereco);
+                                }
+                            } else {
+                                showToast('CEP não encontrado. Por favor, verifique o CEP informado ou preencha o endereço manualmente.', 'warning');
+                            }
+                        }).fail(function() {
+                            $('#cepLoading').addClass('d-none');
+                            showToast('Erro ao buscar o CEP. Por favor, verifique sua conexão ou preencha o endereço manualmente.', 'error');
+                        });
+                    }
+                });
+                
+                $('#numero').blur(function() {
+                    if ($('#logradouro').val()) {
+                        const endereco = $('#logradouro').val() + ', ' + $(this).val() + ', ' + $('#cidade').val() + ', ' + $('#estado').val() + ', Brasil';
+                        geocodeAddress(endereco);
                     }
                 });
             }
-
-            // Buscar dados do CEP quando for alterado
-            $('#cep').blur(function() {
-                const cep = $(this).val().replace(/\D/g, '');
-                console.log("CEP inserido: " + cep);
-                
-                if (cep.length === 8) {
-                    $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
-                        if (!data.erro) {
-                            console.log("CEP encontrado: ", data);
-                            $('#logradouro').val(data.logradouro);
-                            $('#bairro').val(data.bairro);
-                            $('#cidade').val(data.localidade);
-                            $('#estado').val(data.uf);
-                            
-                            // Geocodificação para obter as coordenadas se o número já estiver preenchido
-                            if ($('#numero').val()) {
-                                const endereco = `${data.logradouro}, ${$('#numero').val()}, ${data.localidade}, ${data.uf}, Brasil`;
-                                geocodeAddress(endereco);
-                            }
-                        } else {
-                            console.log("CEP não encontrado");
+            
+            function setupPasswordToggle() {
+                $('#toggleSenhaAtual').click(function() {
+                    const senhaField = $('#senhaAtual');
+                    const icon = $('#iconSenhaAtual');
+                    
+                    if (senhaField.attr('type') === 'password') {
+                        senhaField.attr('type', 'text');
+                        icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    } else {
+                        senhaField.attr('type', 'password');
+                        icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    }
+                });
+            }
+            
+            function geocodeAddress(endereco) {
+                if (typeof google !== 'undefined' && google.maps) {
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ 'address': endereco }, function(results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            $('#latitude').val(results[0].geometry.location.lat());
+                            $('#longitude').val(results[0].geometry.location.lng());
                         }
-                    }).fail(function() {
-                        console.log("Erro ao buscar o CEP");
                     });
                 }
-            });
+            }
             
-            // Quando o número é alterado, atualizar a geocodificação
-            $('#numero').blur(function() {
-                if ($('#logradouro').val()) {
-                    const endereco = `${$('#logradouro').val()}, ${$(this).val()}, ${$('#cidade').val()}, ${$('#estado').val()}, Brasil`;
-                    geocodeAddress(endereco);
+            $('form').submit(function(e) {
+                e.preventDefault();
+                
+                let isFormValid = true;
+                
+                isFormValid &= validateName();
+                isFormValid &= validateEmail();
+                isFormValid &= validatePhone();
+                isFormValid &= validateCep();
+                isFormValid &= validateField('logradouro', 'Logradouro é obrigatório');
+                isFormValid &= validateField('numero', 'Número é obrigatório');
+                isFormValid &= validateField('bairro', 'Bairro é obrigatório');
+                isFormValid &= validateField('cidade', 'Cidade é obrigatória');
+                isFormValid &= validateField('estado', 'Estado é obrigatório');
+                isFormValid &= validateSenhaAtual();
+                
+                @if (Model.Tipo == TipoUsuario.Doador) {
+                    <text>isFormValid &= validateCpf();</text>
                 }
-            });
-            
-            // Geocodificar o endereço completo quando os campos de endereço são alterados
-            $('#cidade, #estado').blur(function() {
-                if ($('#logradouro').val() && $('#numero').val() && $('#cidade').val() && $('#estado').val()) {
-                    const endereco = `${$('#logradouro').val()}, ${$('#numero').val()}, ${$('#cidade').val()}, ${$('#estado').val()}, Brasil`;
-                    geocodeAddress(endereco);
+                
+                @if (Model.Tipo == TipoUsuario.Voluntario) {
+                    <text>isFormValid &= validateCpfVoluntario();</text>
                 }
+                
+                @if (Model.Tipo == TipoUsuario.Organizacao) {
+                    <text>
+                        isFormValid &= validateCnpj();
+                        isFormValid &= validateField('razaoSocial', 'Razão Social é obrigatória');
+                        isFormValid &= validateField('descricao', 'Descrição é obrigatória');
+                    </text>
+                }
+                
+                if (!isFormValid) {
+                    const firstError = $('[style*="border-color: rgb(220, 53, 69)"]').first();
+                    if (firstError.length) {
+                        const fieldName = firstError.attr('id');
+                        let friendlyName = 'Este campo';
+                        
+                        const fieldNames = {
+                            'nome': 'Nome',
+                            'email': 'E-mail',
+                            'telefone': 'Telefone',
+                            'cep': 'CEP',
+                            'logradouro': 'Logradouro',
+                            'numero': 'Número',
+                            'bairro': 'Bairro',
+                            'cidade': 'Cidade',
+                            'estado': 'Estado',
+                            'Cpf': 'CPF',
+                            'CpfVoluntario': 'CPF',
+                            'Cnpj': 'CNPJ',
+                            'RazaoSocial': 'Razão Social',
+                            'Descricao': 'Descrição',
+                            'senhaAtual': 'Senha atual'
+                        };
+                        
+                        friendlyName = fieldNames[fieldName] || friendlyName;
+                        
+                        showToast(`Por favor, corrija o campo "${friendlyName}" antes de continuar.`, 'warning', 'Campos obrigatórios');
+                        firstError.focus();
+                        firstError[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        showToast('Por favor, preencha todos os campos obrigatórios corretamente.', 'warning', 'Formulário incompleto');
+                    }
+                    
+                    return false;
+                }
+                
+                showToast('Validação concluída! Salvando alterações...', 'success');
+                
+                const submitBtn = $('button[type="submit"]');
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Salvando...');
+                
+                this.submit();
             });
         });
     </script>
