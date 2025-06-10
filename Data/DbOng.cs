@@ -15,9 +15,7 @@ public class DbOng : DbContext
     public DbSet<VoluntarioEvento> VoluntarioEventos { get; set; }
     public DbSet<PedidoDoacao> PedidoDoacoes { get; set; }
     public DbSet<Doacao> Doacoes { get; set; }
-    public DbSet<Contato> Contatos { get; set; }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public DbSet<Contato> Contatos { get; set; }    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
@@ -30,6 +28,11 @@ public class DbOng : DbContext
         modelBuilder.Entity<PedidoDoacao>().ToTable("PedidoDoacao");
         modelBuilder.Entity<Doacao>().ToTable("Doacao");
         modelBuilder.Entity<Contato>().ToTable("Contato");
+
+        // Configurar Complemento como opcional
+        modelBuilder.Entity<Usuario>()
+            .Property(u => u.Complemento)
+            .IsRequired(false);
 
         modelBuilder.Entity<VoluntarioEvento>()
             .HasKey(ve => new { ve.VoluntarioId, ve.EventoId }); // <- chave composta
