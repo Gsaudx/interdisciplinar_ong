@@ -51,7 +51,7 @@
             <div class="card-header">
                 <h5 class="mb-0">Lista de Doações</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body">                
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -59,6 +59,7 @@
                                 <th>Data</th>
                                 <th>Doador</th>
                                 <th>Descrição</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -68,6 +69,25 @@
                                     <td>@doacao.DataDoacao.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@doacao.Doador?.Nome</td>
                                     <td>@doacao.Descricao</td>
+                                    <td>
+                                        @{
+                                            string badgeClass = doacao.Status switch
+                                            {
+                                                StatusDoacao.Criada => "bg-warning",
+                                                StatusDoacao.Entregue => "bg-success", 
+                                                StatusDoacao.Cancelada => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                            string statusText = doacao.Status switch
+                                            {
+                                                StatusDoacao.Criada => "Aguardando",
+                                                StatusDoacao.Entregue => "Entregue",
+                                                StatusDoacao.Cancelada => "Cancelada", 
+                                                _ => "Desconhecido"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@statusText</span>
+                                    </td>
                                 </tr>
                             }
                         </tbody>

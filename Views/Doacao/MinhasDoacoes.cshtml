@@ -22,10 +22,27 @@
         <div class="row">
             @foreach (var doacao in Model)
             {
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 mb-4">                    
                     <div class="card h-100">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@doacao.Categoria</h5>
+                            @{
+                                string badgeClass = doacao.Status switch
+                                {
+                                    StatusDoacao.Criada => "bg-warning",
+                                    StatusDoacao.Entregue => "bg-success", 
+                                    StatusDoacao.Cancelada => "bg-danger",
+                                    _ => "bg-secondary"
+                                };
+                                string statusText = doacao.Status switch
+                                {
+                                    StatusDoacao.Criada => "Aguardando",
+                                    StatusDoacao.Entregue => "Entregue",
+                                    StatusDoacao.Cancelada => "Cancelada", 
+                                    _ => "Desconhecido"
+                                };
+                            }
+                            <span class="badge @badgeClass">@statusText</span>
                         </div>
                         <div class="card-body">
                             <p class="card-text">@doacao.Descricao</p>

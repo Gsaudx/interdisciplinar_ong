@@ -49,8 +49,9 @@
                                     @if (User.IsInRole(TipoUsuario.Organizacao.ToString()))
                                     {
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" asp-controller="PedidoDoacao" asp-action="MeusPedidos">Meus Pedidos de Doação</a></li>
                                         <li><a class="dropdown-item" asp-controller="Evento" asp-action="MeusEventos">Meus Eventos</a></li>
+                                        <li><a class="dropdown-item" asp-controller="PedidoDoacao" asp-action="MeusPedidos">Meus Pedidos de Doação</a></li>
+                                        <li><a class="dropdown-item" asp-controller="Doacao" asp-action="DoacoesRecebidas">Doações Recebidas</a></li>
                                     }
                                     
                                     @if (User.IsInRole(TipoUsuario.Voluntario.ToString()))

@@ -154,5 +154,40 @@ namespace Ong.Controllers
             var doacoes = await _doacaoService.ObterDoacoesPorPedido(pedidoId);
             return View(doacoes);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AtualizarStatus(int doacaoId, StatusDoacao novoStatus)
+        {
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            if (usuarioId == 0 || tipoUsuario != TipoUsuario.Organizacao)
+            {
+                TempData["ErrorMessage"] = "Você precisa estar logado como ONG para alterar status de doações.";
+                return RedirectToAction("Login", "Usuario");
+            }
+
+            try
+            {
+                await _doacaoService.AtualizarStatusDoacao(doacaoId, novoStatus, usuarioId);
+                
+                string statusTexto = novoStatus switch
+                {
+                    StatusDoacao.Entregue => "Entregue",
+                    StatusDoacao.Cancelada => "Cancelada",
+                    StatusDoacao.Criada => "Criada",
+                    _ => "Atualizado"
+                };
+
+                TempData["SuccessMessage"] = $"Status da doação alterado para {statusTexto} com sucesso!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Erro ao atualizar status: " + ex.Message;
+            }
+
+            return RedirectToAction("DoacoesRecebidas");
+        }
     }
 }
