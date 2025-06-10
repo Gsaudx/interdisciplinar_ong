@@ -49,11 +49,14 @@ namespace Ong.Services
             var doacao = new Doacao
             {
                 DoadorId = doadorId,
+                Doador = doador as Doador ?? throw new Exception("Usuário não é um doador válido."),
                 OngId = ongId,
+                Ong = ong as Models.Ong ?? throw new Exception("Usuário não é uma ONG válida."),
                 PedidoDoacaoId = pedidoDoacaoId,
                 Categoria = categoria,
                 Descricao = descricao,
-                DataDoacao = DateTime.Now
+                DataDoacao = DateTime.Now,
+                Status = StatusDoacao.Criada
             };
 
             await _context.Doacoes.AddAsync(doacao);
@@ -86,6 +89,48 @@ namespace Ong.Services
                 .Where(d => d.PedidoDoacaoId == pedidoDoacaoId)
                 .Include(d => d.Doador)
                 .Include(d => d.Ong)
+                .ToListAsync();
+        }
+
+        public async Task<Doacao> AtualizarStatusDoacao(int doacaoId, StatusDoacao novoStatus, int ongId)
+        {
+            var doacao = await _context.Doacoes
+                .Include(d => d.Doador)
+                .Include(d => d.Ong)
+                .FirstOrDefaultAsync(d => d.DoacaoId == doacaoId);
+
+            if (doacao == null)
+            {
+                throw new Exception("Doação não encontrada.");
+            }
+
+            if (doacao.OngId != ongId)
+            {
+                throw new Exception("Você só pode alterar o status de doações da sua ONG.");
+            }
+
+            doacao.Status = novoStatus;
+            await _context.SaveChangesAsync();
+
+            return doacao;
+        }
+
+        public async Task<List<Doacao>> ObterDoacoesPorStatus(StatusDoacao status)
+        {
+            return await _context.Doacoes
+                .Where(d => d.Status == status)
+                .Include(d => d.Doador)
+                .Include(d => d.Ong)
+                .Include(d => d.PedidoDoacao)
+                .ToListAsync();
+        }
+
+        public async Task<List<Doacao>> ObterDoacoesPorOngEStatus(int ongId, StatusDoacao status)
+        {
+            return await _context.Doacoes
+                .Where(d => d.OngId == ongId && d.Status == status)
+                .Include(d => d.Doador)
+                .Include(d => d.PedidoDoacao)
                 .ToListAsync();
         }
     }

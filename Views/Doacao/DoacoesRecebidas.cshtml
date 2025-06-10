@@ -6,6 +6,7 @@
 }
 
 <div class="container mt-4">
+    @Html.AntiForgeryToken()
     <div class="row mb-4">
         <div class="col-md-12">
             <h2>Doações Recebidas</h2>
@@ -44,8 +45,7 @@
                     <div class="card-header">
                         <h5 class="mb-0">Lista de Doações</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
+                    <div class="card-body">                        <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
                                     <tr>
@@ -53,7 +53,9 @@
                                         <th>Doador</th>
                                         <th>Categoria</th>
                                         <th>Descrição</th>
+                                        <th>Status</th>
                                         <th>Pedido</th>
+                                        <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -65,6 +67,25 @@
                                             <td>@doacao.Categoria</td>
                                             <td>@doacao.Descricao</td>
                                             <td>
+                                                @{
+                                                    string badgeClass = doacao.Status switch
+                                                    {
+                                                        StatusDoacao.Criada => "bg-warning",
+                                                        StatusDoacao.Entregue => "bg-success",
+                                                        StatusDoacao.Cancelada => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                    string statusText = doacao.Status switch
+                                                    {
+                                                        StatusDoacao.Criada => "Criada",
+                                                        StatusDoacao.Entregue => "Entregue",
+                                                        StatusDoacao.Cancelada => "Cancelada",
+                                                        _ => "Desconhecido"
+                                                    };
+                                                }
+                                                <span class="badge @badgeClass">@statusText</span>
+                                            </td>
+                                            <td>
                                                 @if (doacao.PedidoDoacao != null)
                                                 {
                                                     <a asp-controller="PedidoDoacao" asp-action="Detalhes" asp-route-id="@doacao.PedidoDoacaoId">Ver pedido</a>
@@ -73,6 +94,29 @@
                                                 {
                                                     <span class="text-muted">Doação espontânea</span>
                                                 }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    @if (doacao.Status == StatusDoacao.Criada)
+                                                    {
+                                                        <button type="button" class="btn btn-success btn-sm" 
+                                                                onclick="confirmarAtualizacaoStatus(@doacao.DoacaoId, '@StatusDoacao.Entregue', 'Entregue')">
+                                                            <i class="fa fa-check"></i> Entregue
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger btn-sm" 
+                                                                onclick="confirmarAtualizacaoStatus(@doacao.DoacaoId, '@StatusDoacao.Cancelada', 'Cancelada')">
+                                                            <i class="fa fa-times"></i> Cancelar
+                                                        </button>
+                                                    }
+                                                    else if (doacao.Status == StatusDoacao.Entregue)
+                                                    {
+                                                        <span class="text-success"><i class="fa fa-check-circle"></i> Entregue</span>
+                                                    }
+                                                    else if (doacao.Status == StatusDoacao.Cancelada)
+                                                    {
+                                                        <span class="text-danger"><i class="fa fa-times-circle"></i> Cancelada</span>
+                                                    }
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -112,5 +156,42 @@
                 </text>
             }
         });
+
+        // Função para confirmar atualização de status da doação
+        function confirmarAtualizacaoStatus(doacaoId, novoStatus, statusTexto) {
+            showConfirmationDialog(
+                'Confirmar alteração de status',
+                `Tem certeza que deseja marcar esta doação como "${statusTexto}"?`,
+                `Sim, marcar como ${statusTexto}`,
+                'Cancelar',
+                function() {
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '@Url.Action("AtualizarStatus")';
+                    
+                    var inputDoacaoId = document.createElement('input');
+                    inputDoacaoId.type = 'hidden';
+                    inputDoacaoId.name = 'doacaoId';
+                    inputDoacaoId.value = doacaoId;
+                    
+                    var inputStatus = document.createElement('input');
+                    inputStatus.type = 'hidden';
+                    inputStatus.name = 'novoStatus';
+                    inputStatus.value = novoStatus;
+                    
+                    var token = document.createElement('input');
+                    token.type = 'hidden';
+                    token.name = '__RequestVerificationToken';
+                    token.value = $('input[name="__RequestVerificationToken"]').val();
+                    
+                    form.appendChild(inputDoacaoId);
+                    form.appendChild(inputStatus);
+                    form.appendChild(token);
+                    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            );
+        }
     </script>
 }
