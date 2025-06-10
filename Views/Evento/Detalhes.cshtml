@@ -30,8 +30,9 @@
                         <div class="col-md-3 fw-bold">Organização:</div>
                         <div class="col-md-9">@Model.Ong?.Nome</div>
                     </div>
-                </div>                <div class="card-footer d-flex justify-content-between">
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                </div>                
+                <div class="card-footer d-flex justify-content-between">                                        
+                    @if (User.Identity?.IsAuthenticated == true && ViewBag.TipoUsuario != null && (TipoUsuario)ViewBag.TipoUsuario == TipoUsuario.Organizacao && Model.OngId == ViewBag.UsuarioId)
                     {
                         <a asp-action="MeusEventos" class="btn btn-secondary">
                             <i class="fa fa-arrow-left"></i> Voltar para Meus Eventos
@@ -43,19 +44,17 @@
                             <i class="fa fa-arrow-left"></i> Voltar para Lista de Eventos
                         </a>
                     }
-                    
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Organizacao.ToString()) && Model.OngId == ViewBag.UsuarioId)
+                      @if (User.Identity?.IsAuthenticated == true && ViewBag.TipoUsuario != null && (TipoUsuario)ViewBag.TipoUsuario == TipoUsuario.Organizacao && Model.OngId == ViewBag.UsuarioId)
                     {
                         <a asp-action="Editar" asp-route-id="@Model.EventoId" class="btn btn-warning">
                             <i class="fa fa-edit"></i> Editar
                         </a>
                     }
-                    
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()) && Model.Data > DateTime.Now)
+                      @if (User.Identity?.IsAuthenticated == true && ViewBag.TipoUsuario != null && (TipoUsuario)ViewBag.TipoUsuario == TipoUsuario.Voluntario && Model.Data > DateTime.Now)
                     {
-                        <a asp-action="Inscrever" asp-route-eventoId="@Model.EventoId" asp-route-voluntarioId="@ViewBag.UsuarioId" class="btn btn-success">
+                        <button type="button" class="btn btn-success" onclick="confirmarInscricaoEvento('@Model.EventoId', '@ViewBag.UsuarioId', '@Model.Nome')">
                             <i class="fa fa-check"></i> Voluntariar-se
-                        </a>
+                        </button>
                     }
                 </div>
             </div>
@@ -112,7 +111,6 @@
     <script>
         // Verificar se há mensagens para exibir (vindas do controller)
         $(document).ready(function() {
-            // Mensagem de sucesso
             @if (TempData["SuccessMessage"] != null)
             {
                 <text>
@@ -120,7 +118,6 @@
                 </text>
             }
             
-            // Mensagem de erro
             @if (TempData["ErrorMessage"] != null)
             {
                 <text>
@@ -128,5 +125,17 @@
                 </text>
             }
         });
+        
+        function confirmarInscricaoEvento(eventoId, voluntarioId, nomeEvento) {
+            showConfirmationDialog(
+                'Confirmação de Inscrição',
+                'Deseja se voluntariar para o evento "' + nomeEvento + '"?',
+                'Sim, quero participar',
+                'Cancelar',
+                function() {
+                    window.location.href = '@Url.Action("Inscrever")?eventoId=' + eventoId + '&voluntarioId=' + voluntarioId;
+                }
+            );
+        }
     </script>
 }

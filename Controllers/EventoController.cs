@@ -22,10 +22,14 @@ namespace Ong.Controllers
             _eventoService = eventoService;
             _usuarioService = usuarioService;
             _sessaoService = sessaoService;
-        }
-
-        public async Task<IActionResult> Index()
+        }        public async Task<IActionResult> Index()
         {
+            var usuarioId = _sessaoService.ObterUsuarioId();
+            var tipoUsuario = _sessaoService.ObterTipoUsuario();
+
+            ViewBag.UsuarioId = usuarioId;
+            ViewBag.TipoUsuario = tipoUsuario;
+
             var eventos = await _eventoService.ObterEventosFuturos();
             return View(eventos);
         }
