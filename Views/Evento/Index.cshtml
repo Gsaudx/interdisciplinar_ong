@@ -53,9 +53,11 @@
                                 </small>
                             </p>
                         </div>
-                        <div class="card-footer">                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
+                        <div class="card-footer">                            
+                            <a asp-action="Detalhes" asp-route-id="@evento.EventoId" class="btn btn-primary btn-sm">
                                 <i class="fa fa-info-circle"></i> Detalhes
-                            </a>                            @if (User.Identity?.IsAuthenticated == true && User.IsInRole(TipoUsuario.Voluntario.ToString()))
+                            </a>                            
+                            @if (User.Identity?.IsAuthenticated == true && ViewBag.TipoUsuario != null && (TipoUsuario)ViewBag.TipoUsuario == TipoUsuario.Voluntario)
                             {
                                 <button type="button" class="btn btn-success btn-sm" onclick="confirmarInscricaoEvento('@evento.EventoId', '@ViewBag.UsuarioId', '@evento.Nome')">
                                     <i class="fa fa-hand-paper-o"></i> Voluntariar-se
@@ -95,8 +97,7 @@
                 </text>
             }
         });
-        
-        // Função para confirmar inscrição em evento
+          // Função para confirmar inscrição em evento
         function confirmarInscricaoEvento(eventoId, voluntarioId, nomeEvento) {
             showConfirmationDialog(
                 'Confirmação de Inscrição',
@@ -104,7 +105,7 @@
                 'Sim, quero participar',
                 'Cancelar',
                 function() {
-                    window.location.href = '@Url.Action("Inscrever")/?eventoId=' + eventoId + '&voluntarioId=' + voluntarioId;
+                    window.location.href = '@Url.Action("Inscrever")?eventoId=' + eventoId + '&voluntarioId=' + voluntarioId;
                 }
             );
         }
