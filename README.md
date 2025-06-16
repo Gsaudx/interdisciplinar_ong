@@ -120,3 +120,4 @@ dotnet watch run
 
 - Guilherme Saud Favaro
 - Isaque Precioso de Andrade
+- Enzo Capotosto de Souza
